@@ -1,20 +1,141 @@
 import React, { Component } from 'react';
 import './login-screen.css';
+//import Styled from 'styled-components';
+
 
 
 class LoginScreen extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            screen: 0,
-            login: '',
-            password: ''
+            register: false,
+            registerScreen: false,
+            loginForm: {
+                email: '',
+                password: ''
+            },
+            registerForm: {
+                email: '',
+                password: {
+                    first: '',
+                    second: ''
+                },
+                name: '',
+                surname: ''
+            }
         }
-        this.toggleMode = this.toggleMode.bind(this);
+
+        this.enableFormLogin = this.enableFormLogin.bind(this);
+        this.enableRegisterLogin = this.enableRegisterLogin.bind(this);
+        this.handleLogin = this.handleLogin.bind(this);
+        this.formLoginEmailHandler = this.formLoginEmailHandler.bind(this);
+        this.formLoginPwHandler = this.formLoginPwHandler.bind(this);
+        this.handleRegister = this.handleRegister.bind(this);
+        this.formRegisterEmailHandler = this.formRegisterEmailHandler.bind(this);
+        this.formRegisterFirstPwHandler = this.formRegisterFirstPwHandler.bind(this);
+        this.formRegisterSecondPwHandler = this.formRegisterSecondPwHandler.bind(this);
+        this.formRegisterNameHandler = this.formRegisterNameHandler.bind(this);
+        this.formRegisterSurnameHandler = this.formRegisterSurnameHandler.bind(this);
     }
 
-    toggleMode(event) {
+    
+    enableFormLogin = (event) => {
+        this.setState({
+            registerScreen: false
+        });
+    }
+    enableRegisterLogin = (event) => {
+        this.setState({
+            registerScreen: true
+        });
+    }
 
+
+    handleLogin = (event) => {
+        event.preventDefault();
+    }
+
+    formLoginEmailHandler = (event) => {
+        this.setState({
+            loginForm: {
+                email: event.target.value,
+                password: this.state.loginForm.password
+            }
+        });
+    }
+
+    formLoginPwHandler = (event) => {
+        this.setState({
+            loginForm: {
+                email: this.state.loginForm.email,
+                password: event.target.value
+            }
+        });
+    }
+
+    handleRegister = (event) => {
+        event.preventDefault();
+    }
+
+    formRegisterEmailHandler = (event) => {
+        this.setState({
+            registerForm: {
+                email: event.target.value,
+                password: this.state.registerForm.password,
+                name: this.state.registerForm.name,
+                surname: this.state.registerForm.surname
+            }
+        });
+    }
+
+    formRegisterFirstPwHandler = (event) => {
+        this.setState({
+            registerForm: {
+                email: this.state.registerForm.email,
+                password: {
+                    first: event.target.value,
+                    second: this.state.registerForm.password.second
+                },
+                name: this.state.registerForm.name,
+                surname: this.state.registerForm.surname
+            }
+        });
+    }
+
+    formRegisterSecondPwHandler = (event) => {
+        this.setState({
+            registerForm: {
+                email: this.state.registerForm.email,
+                password: {
+                    first: this.state.registerForm.password.first,
+                    second: event.target.value
+                },
+                name: this.state.registerForm.name,
+                surname: this.state.registerForm.surname
+            }
+        });
+    }
+
+    formRegisterNameHandler = (event) => {
+        this.setState({
+            registerForm: {
+                email: this.state.registerForm.email,
+                password: this.state.registerForm.password,
+                name: event.target.value,
+                surname: this.state.registerForm.surname
+            }
+        });
+    }
+    
+    formRegisterSurnameHandler = (event) => {
+        this.setState({
+            registerForm: {
+                email: this.state.registerForm.email,
+                password: this.state.registerForm.password,
+                name: this.state.registerForm.name,
+                surname: event.target.value
+            }
+        });
     }
 
     render() {
@@ -24,20 +145,61 @@ class LoginScreen extends Component {
                     @rusio chat app
                 </header>
                 <div className="buttons">
-                    <button onClick={this.toggleMode} className="btn-mode">Login</button>
-                    <button onClick={this.toggleMode} className="btn-mode">Register</button>
+                    <button onClick={this.enableFormLogin} className="btn-mode">Login</button>
+                    <button onClick={this.enableRegisterLogin} className="btn-mode">Register</button>
                 </div>
-                <div className="forms">
-                    <form action="" onSubmit={this.props.loggerService}>
-                        <input type="text" onChange={this.loginHandler} className="input-field" value={this.state.login} />
-                        <input type="password" onChange={this.pwHandler} className="input-field" value={this.state.password} />
-                        <input type="submit" value="Login!" className="btn-submit" />
-                    </form>
+                <div className="forms"> 
+                    {
+                        (this.state.registerScreen)? 
+                        <FormRegister 
+                            values={this.state.registerForm}
+                            formRegisterEmailHandler = {this.formRegisterEmailHandler}
+                            formRegisterFirstPwHandler = {this.formRegisterFirstPwHandler}
+                            formRegisterSecondPwHandler = {this.formRegisterSecondPwHandler}
+                            formRegisterNameHandler = {this.formRegisterNameHandler}
+                            formRegisterSurnameHandler = {this.formRegisterSurnameHandler}
+                        />
+                        :
+                        <FormLogin 
+                            values={this.state.loginForm}
+                            formLoginEmailHandler = {this.formLoginEmailHandler}
+                            formLoginPwHandler = {this.formLoginPwHandler}
+                        /> 
+                    }           
                 </div>
                 
             </div>
         );
     };
+}
+
+const FormLogin = (props) => {
+    return (
+        <form action="" onSubmit={props.handleLogin}>
+            <input onChange={props.formLoginEmailHandler} className="input-field" value={props.values.email} />
+            <label>Email</label>
+            <input type="password" onChange={props.formLoginPwHandler} className="input-field" defaultValue={props.values.password}/>
+            <label>Password</label>
+            <input type="submit" value="Login!" className="btn-submit" />
+        </form>        
+    );
+}
+
+const FormRegister = (props) => {
+    return (
+        <form action="" onSubmit={props.handleRegister}>
+            <input onChange={props.formRegisterEmailHandler} className="input-field" value={props.values.email} />
+            <label>Email</label>
+            <input type="password" onChange={props.formRegisterFirstPwHandler} className="input-field" value={props.values.password.first} />
+            <label>Password</label>
+            <input type="password" onChange={props.formRegisterSecondPwHandler} className="input-field" value={props.values.password.second} />
+            <label>Repeat password</label>
+            <input onChange={props.formRegisterNameHandler} className="input-field" value={props.values.name} />
+            <label>Name</label>
+            <input onChange={props.formRegisterSurnameHandler} className="input-field" value={props.values.surname} />
+            <input type="submit" value="Register!" className="btn-submit" />
+        </form>
+    );
 }
 
 export default LoginScreen;
