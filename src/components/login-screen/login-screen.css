@@ -1,0 +1,134 @@
+@import url('https://fonts.googleapis.com/css?family=Pacifico&display=swap');
+
+body {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+header {
+    color: dodgerblue;
+    font-family: 'Pacifico', cursive;
+    font-size: 2.5em;
+    padding-bottom: 1.5em;
+}
+
+form {
+    text-align: center;
+    position: relative;
+    display: flex;
+    width: 90%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 2px black solid;
+    margin: 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-top: none;
+    padding-bottom: 2em;
+    padding-top: 1em;
+    border-bottom-left-radius: 1em;
+    border-bottom-right-radius: 1em;
+}
+
+footer {
+    color: dodgerblue;
+    font-family: cursive;
+    position: absolute;
+    bottom: 0;
+    text-align: center;
+    width: 100%;
+    margin: 0;
+    padding: 2em 0 1em 0;
+    left: 0;
+}
+
+.loginScreen {
+    width: 100%;
+}
+
+.buttons {
+    text-align: center;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    width: 90%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 2px black solid;
+    border-top-left-radius: 1em;
+    border-top-right-radius: 1em;
+    margin: 0;
+    padding: 0;
+}
+
+.btn-mode {
+    width: 50%;
+    height: 2em;
+    background-color: white;
+    color: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+    border: none;
+
+}
+
+.btn-left {
+    border-top-left-radius: 1em;
+    border-right: 1px solid black;
+    padding-left: 2px;
+}
+
+.btn-right {
+    border-top-right-radius: 1em;
+    border-left: 1px solid black;
+    padding-right: 2px;
+}
+
+.btn-active, .btn-submit {
+    color: white;
+    background-color: dodgerblue;
+}
+
+.btn-submit {
+    margin-top: 1.5em;
+    width: 70%;
+    border: none;
+    border-radius: 1em;
+    height: 2em;
+}
+
+.input-field {
+    color: #333;
+    border: none;
+    display: flex;
+    width: 80%;
+    border-bottom: 1px #333 solid;
+    padding-top: 1.5em;
+}
+
+@media (min-width: 400px) {
+    .buttons, form {
+        width: 70%;
+    }
+}
+
+@media (min-width: 550px) {
+    .buttons, form {
+        width: 60%;
+    }
+}
+
+@media (min-width: 1024px) {
+    .buttons form {
+        width: 50%;
+    }
+}
+
+@media (orientation: landscape) {
+    footer {
+        position: relative;
+    }
+}

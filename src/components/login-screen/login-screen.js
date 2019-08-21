@@ -145,8 +145,8 @@ class LoginScreen extends Component {
                     @rusio chat app
                 </header>
                 <div className="buttons">
-                    <button onClick={this.enableFormLogin} className="btn-mode">Login</button>
-                    <button onClick={this.enableRegisterLogin} className="btn-mode">Register</button>
+                    <button onClick={this.enableFormLogin} className="btn-mode btn-left">Login</button>
+                    <button onClick={this.enableRegisterLogin} className="btn-mode btn-right">Register</button>
                 </div>
                 <div className="forms"> 
                     {
@@ -167,7 +167,9 @@ class LoginScreen extends Component {
                         /> 
                     }           
                 </div>
-                
+                <footer>
+                    Designed by Mateusz Rusak
+                </footer>
             </div>
         );
     };
@@ -176,10 +178,8 @@ class LoginScreen extends Component {
 const FormLogin = (props) => {
     return (
         <form action="" onSubmit={props.handleLogin}>
-            <input onChange={props.formLoginEmailHandler} className="input-field" value={props.values.email} />
-            <label>Email</label>
-            <input type="password" onChange={props.formLoginPwHandler} className="input-field" defaultValue={props.values.password}/>
-            <label>Password</label>
+            <input onChange={props.formLoginEmailHandler} className="input-field" value={props.values.email} placeholder="Email"/>
+            <input type="password" onChange={props.formLoginPwHandler} className="input-field" defaultValue={props.values.password} placeholder="Password"/>
             <br/>
             <input type="submit" value="Login!" className="btn-submit" />
         </form>        
@@ -189,16 +189,11 @@ const FormLogin = (props) => {
 const FormRegister = (props) => {
     return (
         <form action="" onSubmit={props.handleRegister}>
-            <input onChange={props.formRegisterEmailHandler} className="input-field" value={props.values.email} />
-            <label>Email</label>
-            <input type="password" onChange={props.formRegisterFirstPwHandler} className="input-field" value={props.values.password.first} />
-            <label>Password</label>
-            <input type="password" onChange={props.formRegisterSecondPwHandler} className="input-field" value={props.values.password.second} />
-            <label>Repeat password</label>
-            <input onChange={props.formRegisterNameHandler} className="input-field" value={props.values.name} />
-            <label>Name</label>
-            <input onChange={props.formRegisterSurnameHandler} className="input-field" value={props.values.surname} />
-            <label>Surname</label>
+            <input onChange={props.formRegisterEmailHandler} className="input-field" value={props.values.email} placeholder="Email"/>
+            <input type="password" onChange={props.formRegisterFirstPwHandler} className="input-field" value={props.values.password.first} placeholder="Password" />
+            <input type="password" onChange={props.formRegisterSecondPwHandler} className="input-field" value={props.values.password.second} placeholder="Repeat password" />
+            <input onChange={props.formRegisterNameHandler} className="input-field" value={props.values.name} placeholder="Name"/>
+            <input onChange={props.formRegisterSurnameHandler} className="input-field" value={props.values.surname} placeholder="Surname"/>
             <br/>
             <input type="submit" value="Register!" className="btn-submit" />
         </form>
