@@ -180,6 +180,7 @@ const FormLogin = (props) => {
             <label>Email</label>
             <input type="password" onChange={props.formLoginPwHandler} className="input-field" defaultValue={props.values.password}/>
             <label>Password</label>
+            <br/>
             <input type="submit" value="Login!" className="btn-submit" />
         </form>        
     );
@@ -197,6 +198,8 @@ const FormRegister = (props) => {
             <input onChange={props.formRegisterNameHandler} className="input-field" value={props.values.name} />
             <label>Name</label>
             <input onChange={props.formRegisterSurnameHandler} className="input-field" value={props.values.surname} />
+            <label>Surname</label>
+            <br/>
             <input type="submit" value="Register!" className="btn-submit" />
         </form>
     );
