@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import {withRouter} from 'react-router-dom';
 import './login-screen.css';
 //import Styled from 'styled-components';
 
@@ -53,6 +54,8 @@ class LoginScreen extends Component {
 
     handleLogin = (event) => {
         event.preventDefault();
+        this.props.loggedinChange();
+        this.props.history.push('/');
     }
 
     formLoginEmailHandler = (event) => {
@@ -73,7 +76,7 @@ class LoginScreen extends Component {
         });
     }
 
-    handleRegister = (event) => {
+    handleRegister(event) {
         event.preventDefault();
     }
 
@@ -158,12 +161,14 @@ class LoginScreen extends Component {
                             formRegisterSecondPwHandler = {this.formRegisterSecondPwHandler}
                             formRegisterNameHandler = {this.formRegisterNameHandler}
                             formRegisterSurnameHandler = {this.formRegisterSurnameHandler}
+                            handleRegister = {this.handleRegister}
                         />
                         :
                         <FormLogin 
                             values={this.state.loginForm}
                             formLoginEmailHandler = {this.formLoginEmailHandler}
                             formLoginPwHandler = {this.formLoginPwHandler}
+                            handleLogin = {this.handleLogin}
                         /> 
                     }           
                 </div>
@@ -177,7 +182,7 @@ class LoginScreen extends Component {
 
 const FormLogin = (props) => {
     return (
-        <form action="" onSubmit={props.handleLogin}>
+        <form onSubmit={props.handleLogin}>
             <input onChange={props.formLoginEmailHandler} className="input-field" value={props.values.email} placeholder="Email"/>
             <input type="password" onChange={props.formLoginPwHandler} className="input-field" defaultValue={props.values.password} placeholder="Password"/>
             <br/>
@@ -188,16 +193,16 @@ const FormLogin = (props) => {
 
 const FormRegister = (props) => {
     return (
-        <form action="" onSubmit={props.handleRegister}>
+        <form onSubmit={props.handleRegister}>
             <input onChange={props.formRegisterEmailHandler} className="input-field" value={props.values.email} placeholder="Email"/>
             <input type="password" onChange={props.formRegisterFirstPwHandler} className="input-field" value={props.values.password.first} placeholder="Password" />
             <input type="password" onChange={props.formRegisterSecondPwHandler} className="input-field" value={props.values.password.second} placeholder="Repeat password" />
             <input onChange={props.formRegisterNameHandler} className="input-field" value={props.values.name} placeholder="Name"/>
             <input onChange={props.formRegisterSurnameHandler} className="input-field" value={props.values.surname} placeholder="Surname"/>
             <br/>
-            <input type="submit" value="Register!" className="btn-submit" />
+            <button type="submit" className="btn-submit">Register!</button>
         </form>
     );
 }
 
-export default LoginScreen;
+export default withRouter(LoginScreen);
