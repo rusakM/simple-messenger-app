@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import {withRouter} from 'react-router-dom';
 import './login-screen.css';
+import Logger from './../../logger';
 //import Styled from 'styled-components';
 
 
@@ -54,7 +55,7 @@ class LoginScreen extends Component {
 
     handleLogin = (event) => {
         event.preventDefault();
-        this.props.loggedinChange();
+        Logger.login(() => this.props.login(this.state.loginForm.email));
         this.props.history.push('/');
     }
 
