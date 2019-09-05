@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import {withRouter} from 'react-router-dom';
+//import {withRouter} from 'react-router-dom';
 import './login-screen.css';
 import Logger from './../../logger';
+import Headers from './../../addons/headers';
 //import Styled from 'styled-components';
 
 
@@ -24,7 +25,8 @@ class LoginScreen extends Component {
                 },
                 name: '',
                 surname: ''
-            }
+            },
+            loginStatus: 0
         }
 
         this.enableFormLogin = this.enableFormLogin.bind(this);
@@ -55,8 +57,21 @@ class LoginScreen extends Component {
 
     handleLogin = (event) => {
         event.preventDefault();
+        // fetch('http://localhost:3002/login', {
+        //     method: 'POST',
+        //     mode: "cors",
+        //     credentials: "same-origin",
+        //     headers: Headers,
+        //     body: `user=${this.state.loginForm.email}&password=${this.state.loginForm.password}`
+        // }).then(response => {
+        //     if(response.status === 200) {
+        //         Logger.login(() => this.props.login(this.state.loginForm.email));
+        //         this.props.history.push('/');
+        //     }
+        // });
         Logger.login(() => this.props.login(this.state.loginForm.email));
         this.props.history.push('/');
+        
     }
 
     formLoginEmailHandler = (event) => {
@@ -206,4 +221,5 @@ const FormRegister = (props) => {
     );
 }
 
-export default withRouter(LoginScreen);
+//export default withRouter(LoginScreen);
+export default LoginScreen;

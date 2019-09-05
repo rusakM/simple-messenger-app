@@ -2,8 +2,9 @@ import React from 'react';
 import {Component} from 'react';
 import {instanceOf} from 'prop-types';
 import { withCookies, Cookies} from 'react-cookie';
-import { Route, Switch, Redirect} from 'react-router-dom';
+import { Route, Switch, Redirect, withRouter} from 'react-router-dom';
 import LoginScreen from './components/login-screen/login-screen';
+import MainScreen from './components/main-screen/main-screen';
 
 import './styles.css';
 
@@ -18,10 +19,12 @@ class App extends Component {
         const { cookies } = props;
 
         this.state = {
-            loggedin: false,
+            loggedin: (cookies.get('user')) ? true : false,
             user: cookies.get('user') || false
         }
         this.logIn = this.logIn.bind(this);
+        this.logOut = this.logOut.bind(this);
+        this.cookiesRemover = this.cookiesRemover.bind(this);
     }
 
     logIn(user) {
@@ -36,27 +39,31 @@ class App extends Component {
         cookies.set('user', user, {patch: '/', expires: expire});
     }
 
-    logOut() {
+    cookiesRemover() {
         const { cookies } = this.props;
         cookies.remove('user');
-        this.setState({
-            loggedin: false,
-            user: false
-        });
+    }
+
+    logOut() {
+        
+        this.cookiesRemover();
+        this.props.history.push('/login');
     }
     
 
     render() {
         return( 
             <Switch>
-                <Route exact path='/login' component={(history) => <LoginScreen login={this.logIn} history={history}/>} />
-                
+                <Route exact path='/login' component={() => <LoginScreen login={this.logIn} history={this.props.history} cookiesremover={this.cookiesRemover} />} />
+                <Route exact path='/app' component={(history) => <MainScreen user={this.state.user} history={history} logout={this.logOut} chatlist={[]} /> }/>
                 {
                     (!this.state.loggedin) ?
                         <Redirect from='/' to='/login' />
                         :
-                        <Redirect from='/' to='/' />
+                        <Redirect from='/' to='/app' />
                 }
+
+                
             </Switch>
 
         );
@@ -64,4 +71,4 @@ class App extends Component {
     }
 }
 
-export default withCookies(App);
+export default withCookies(withRouter(App));
