@@ -1,0 +1,165 @@
+.main-screen {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-header {
+    position: sticky;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: stretch;
+    margin: 0;
+    padding: 0;
+    border-bottom: #bbb solid 1px;
+}
+
+.main-header > h1 {
+    margin: 0 0 0 20px;
+    font-size: 1em;
+}
+
+.btn-menu {
+    margin-right: 15px;
+    border: none;
+    font-size: 0.7em;
+    background-color: inherit;
+    color: black;
+}
+
+.btn-menu:hover {
+    color: #666;
+}
+
+.right-settings-screen {
+    position: fixed;
+    left: 100%;
+    top: 79px;
+    display: flex;
+    width: 75%;
+    align-self: flex-end;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: whitesmoke;
+    height: 80vh;
+    border-left: #aaa solid 1px;
+    border-bottom: #aaa solid 1px;
+    z-index: 100;
+    
+    
+}
+.right-settings-screen-show {
+    animation-duration: 0.75s;
+    animation-name: show-settings-screen;
+    left: 25%;
+}
+.right-settings-screen-hide {
+    animation-duration: 0.75s;
+    animation-name: hide-settings-screen;
+    left: 100%; 
+}
+
+@keyframes show-settings-screen {
+    from {
+        left: 100%;
+    }
+    to {
+        left: 25%;
+    }
+}
+
+@keyframes hide-settings-screen {
+    from {
+        left: 25%
+    }
+    to {
+        left: 100%;
+    }
+}
+
+
+.list-settings {
+    list-style-type: none;
+    padding-left: 25px;
+    
+}
+.list-settings > li {
+    padding-bottom: 15px;
+}
+
+.search-bar-container {
+    position: relative;
+    display: flex;
+    height: 40px;
+    justify-content: center;
+    align-items: center;
+}
+
+.search-bar {
+    border: #666 1px solid;
+    border-radius: 10px;
+    color: black;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    width: 70%;
+    font-size: 12px;
+    height: 20px;
+    text-align: center;
+}
+
+.search-items-container {
+    position: fixed;
+    display: flex;
+    top: -100%;
+    width: 100%;
+    height: 100%;
+    overflow-x: auto;
+    border: #aaa solid 1px;
+    flex-direction: column;
+    background-color: white;
+}
+
+.search-items-container-show {
+    animation-duration: 0.75s;
+    animation-name: show-search-items;
+    top: 120px;
+}
+.search-items-container-hide {
+    animation-duration: 0.75s;
+    animation-name: hide-search-items;
+    top: -100%;
+}
+
+@keyframes show-search-items {
+    from {
+        top: -100%;
+    }
+    to {
+        top: 120px;
+    }
+}
+
+@keyframes hide-search-items {
+    from {
+        top: 120px;
+    }
+    to {
+        top: -100%;
+    }
+}
+
+.search-panel-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-left: 20px;
+}
+
+.close-search-panel {
+    border: none;
+    font-size: 1.25em;
+    background: inherit;
+    color: #666;
+    padding-right: 15px;
+}

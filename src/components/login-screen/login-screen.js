@@ -199,8 +199,8 @@ class LoginScreen extends Component {
 const FormLogin = (props) => {
     return (
         <form onSubmit={props.handleLogin}>
-            <input onChange={props.formLoginEmailHandler} className="input-field" value={props.values.email} placeholder="Email"/>
-            <input type="password" onChange={props.formLoginPwHandler} className="input-field" defaultValue={props.values.password} placeholder="Password"/>
+            <input onChange={props.formLoginEmailHandler} className="input-field" value={props.values.email} placeholder="Email" required/>
+            <input type="password" onChange={props.formLoginPwHandler} className="input-field" defaultValue={props.values.password} placeholder="Password" required/>
             <br/>
             <input type="submit" value="Login!" className="btn-submit" />
         </form>        
@@ -210,11 +210,11 @@ const FormLogin = (props) => {
 const FormRegister = (props) => {
     return (
         <form onSubmit={props.handleRegister}>
-            <input onChange={props.formRegisterEmailHandler} className="input-field" value={props.values.email} placeholder="Email"/>
-            <input type="password" onChange={props.formRegisterFirstPwHandler} className="input-field" value={props.values.password.first} placeholder="Password" />
-            <input type="password" onChange={props.formRegisterSecondPwHandler} className="input-field" value={props.values.password.second} placeholder="Repeat password" />
-            <input onChange={props.formRegisterNameHandler} className="input-field" value={props.values.name} placeholder="Name"/>
-            <input onChange={props.formRegisterSurnameHandler} className="input-field" value={props.values.surname} placeholder="Surname"/>
+            <input onChange={props.formRegisterEmailHandler} className="input-field" value={props.values.email} placeholder="Email" required/>
+            <input type="password" onChange={props.formRegisterFirstPwHandler} className="input-field" value={props.values.password.first} placeholder="Password" required/>
+            <input type="password" onChange={props.formRegisterSecondPwHandler} className="input-field" value={props.values.password.second} placeholder="Repeat password" required/>
+            <input onChange={props.formRegisterNameHandler} className="input-field" value={props.values.name} placeholder="Name" required/>
+            <input onChange={props.formRegisterSurnameHandler} className="input-field" value={props.values.surname} placeholder="Surname" required/>
             <br/>
             <button type="submit" className="btn-submit">Register!</button>
         </form>
