@@ -1,3 +1,12 @@
+:root {
+    --position-settings-screen: 25%;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
 .main-screen {
     position: relative;
     display: flex;
@@ -14,11 +23,28 @@
     margin: 0;
     padding: 0;
     border-bottom: #bbb solid 1px;
+    font-size: 2.5em;
+    height: 50px;
+    background-color: #04BF68;
 }
 
-.main-header > h1 {
-    margin: 0 0 0 20px;
-    font-size: 1em;
+.user-photo {
+    border: 1px solid #04BF68;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin: 5px 0 0 10px;
+}
+
+.main-header > div {
+    position: relative;
+    display: flex;
+}
+
+.main-header > div > h2 {
+    margin-left: 15px;
+    font-size: 0.5em;
+    color: #F2F2F2;
 }
 
 .btn-menu {
@@ -26,34 +52,34 @@
     border: none;
     font-size: 0.7em;
     background-color: inherit;
-    color: black;
+    color: #F2F2F2;
+    height: 50px;
 }
 
 .btn-menu:hover {
-    color: #666;
+    color: #ccc;
 }
 
 .right-settings-screen {
     position: fixed;
     left: 100%;
-    top: 79px;
+    top: 51px;
     display: flex;
     width: 75%;
     align-self: flex-end;
     flex-direction: column;
     justify-content: space-between;
-    background-color: whitesmoke;
-    height: 80vh;
+    background-color: #F2F2F2;
+    height: 85vh;
     border-left: #aaa solid 1px;
     border-bottom: #aaa solid 1px;
     z-index: 100;
-    
-    
+    color: #02733E;
 }
 .right-settings-screen-show {
     animation-duration: 0.75s;
     animation-name: show-settings-screen;
-    left: 25%;
+    left: var(--position-settings-screen);
 }
 .right-settings-screen-hide {
     animation-duration: 0.75s;
@@ -66,13 +92,13 @@
         left: 100%;
     }
     to {
-        left: 25%;
+        left: var(--position-settings-screen);
     }
 }
 
 @keyframes hide-settings-screen {
     from {
-        left: 25%
+        left: var(--position-settings-screen);
     }
     to {
         left: 100%;
@@ -82,11 +108,28 @@
 
 .list-settings {
     list-style-type: none;
-    padding-left: 25px;
+    margin: 0;
+    padding: 0;
     
 }
 .list-settings > li {
-    padding-bottom: 15px;
+    padding-bottom: 8px;
+    padding-left: 25px;
+    padding-top: 8px;
+}
+.list-settings > li:first-child {
+    padding-top: 16px;
+}
+
+.list-settings > li:hover {
+    background-color: #ddd;
+}
+
+.right-settings-screen > p {
+    display: flex;
+    position: relative;
+    justify-self: flex-end;
+    align-self: center;
 }
 
 .search-bar-container {
@@ -95,14 +138,18 @@
     height: 40px;
     justify-content: center;
     align-items: center;
+    background-color: white;
+    align-self: center;
+    z-index: 3;
+    width: 100%;
 }
 
 .search-bar {
-    border: #666 1px solid;
-    border-radius: 10px;
-    color: black;
+    border: #04BF68 2px solid;
+    border-radius: 12px;
+    color: #02733E;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    width: 70%;
+    width: 80%;
     font-size: 12px;
     height: 20px;
     text-align: center;
@@ -111,10 +158,10 @@
 .search-items-container {
     position: fixed;
     display: flex;
-    top: -100%;
+    top: -101%;
     width: 100%;
     height: 100%;
-    overflow-x: auto;
+    overflow-y: auto;
     border: #aaa solid 1px;
     flex-direction: column;
     background-color: white;
@@ -123,29 +170,29 @@
 .search-items-container-show {
     animation-duration: 0.75s;
     animation-name: show-search-items;
-    top: 120px;
+    top: 110px;
 }
 .search-items-container-hide {
     animation-duration: 0.75s;
     animation-name: hide-search-items;
-    top: -100%;
+    top: -101%;
 }
 
 @keyframes show-search-items {
     from {
-        top: -100%;
+        top: -101%;
     }
     to {
-        top: 120px;
+        top: 110px;
     }
 }
 
 @keyframes hide-search-items {
     from {
-        top: 120px;
+        top: 110px;
     }
     to {
-        top: -100%;
+        top: -101%;
     }
 }
 
@@ -162,4 +209,130 @@
     background: inherit;
     color: #666;
     padding-right: 15px;
+}
+
+.close-search-panel:hover {
+    color: #aaa;
+}
+
+.chats-container {
+    list-style-type: none;
+    position: fixed;
+    flex-direction: column;
+    justify-content: baseline;
+    display: flex;
+    height: 100%;
+    top: 51px;
+    padding: 50px 0 30px 0;
+    width: 100%;
+    overflow-y: auto;
+    align-self: center;
+    margin: 0;
+    background-color: white;
+}
+
+.chat-list-item {
+    display: flex;
+    position: relative;
+    width: 100%;
+    height: 70px;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.chat-list-item:hover {
+    background-color: #F2F2F2;
+}
+
+.chat-list-item > div {
+    margin-left: 10px;
+}
+
+
+.chat-list-name, .chat-list-content {
+    margin: 0
+}
+
+
+.chat-img {
+    border: 2px solid #04BF68;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-left: 10px;
+}
+
+.chat-list-content {
+    color: #02733E;
+    word-break: break-all;
+}
+
+@media (min-width: 400px) {
+    .chats-container, .search-items-container, .search-bar-container {
+        width: 80%;
+    }
+
+    .chats-container {
+        border-left: #bbb solid 1px;
+        border-right: #bbb solid 1px;
+    }
+
+    .right-settings-screen {
+        width: 50%;
+    }
+    :root {
+        --position-settings-screen: 50%;
+    }
+
+
+}
+
+@media (min-width: 500px) {
+    .chats-container, .search-items-container, .search-bar-container {
+        width: 70%;
+    }
+
+    .right-settings-screen {
+        width: 40%;
+    }
+    :root {
+        --position-settings-screen: 60%;
+    }
+
+    .search-bar {
+        width: 60%;
+    }
+}
+
+@media (min-width: 700px) {
+    .chats-container, .search-items-container, .search-bar-container {
+        width: 50%;
+    }
+
+    .right-settings-screen {
+        width: 30%;
+    }
+    :root {
+        --position-settings-screen: 70%;
+    }
+
+    .search-bar {
+        width: 45%;
+    }
+}
+
+@media (min-width: 1024px) {
+    .chats-container, .search-items-container, .search-bar-container {
+        width: 40%;
+    }
+
+    .right-settings-screen {
+        width: 25%;
+    }
+    :root {
+        --position-settings-screen: 75%;
+    }
+
 }

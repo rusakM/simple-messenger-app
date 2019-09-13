@@ -5,6 +5,7 @@ import { withCookies, Cookies} from 'react-cookie';
 import { Route, Switch, Redirect, withRouter} from 'react-router-dom';
 import LoginScreen from './components/login-screen/login-screen';
 import MainScreen from './components/main-screen/main-screen';
+import ChatScreen from './components/chat-screen/chat-screen';
 
 import './styles.css';
 
@@ -20,7 +21,8 @@ class App extends Component {
 
         this.state = {
             loggedin: (cookies.get('user')) ? true : false,
-            user: cookies.get('user') || false
+            user: cookies.get('user') || false,
+            userChats: []
         }
         this.logIn = this.logIn.bind(this);
         this.logOut = this.logOut.bind(this);
@@ -45,22 +47,28 @@ class App extends Component {
     }
 
     logOut() {
-        
+        this.setState({
+            chat: {
+                userId: 0,
+                chatId: 0
+            },
+            userChats: []
+        });
         this.cookiesRemover();
         this.props.history.push('/login');
     }
-    
 
     render() {
         return( 
             <Switch>
                 <Route exact path='/login' component={() => <LoginScreen login={this.logIn} history={this.props.history} cookiesremover={this.cookiesRemover} />} />
-                <Route exact path='/app' component={() => <MainScreen user={this.state.user} history={this.props.history} logout={this.logOut} chatlist={[]} /> }/>
+                <Route exact path='/' component={() => <MainScreen user={this.state.user} history={this.props.history} logout={this.logOut}/> }/>
+                <Route path='/chat' component={() => <ChatScreen user={this.state.user} history={this.props.history} />} />
                 {
                     (!this.state.loggedin) ?
                         <Redirect from='/' to='/login' />
                         :
-                        <Redirect from='/' to='/app' />
+                        <Redirect from='/' to={this.props.history.location.pathname} />
                 }
 
                 

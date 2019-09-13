@@ -2,15 +2,20 @@ import React, { Component } from 'react';
 import './main-screen.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSlidersH, faSignOutAlt, faUserCog, faTimes } from '@fortawesome/free-solid-svg-icons';
-import Headers from './../../addons/headers';
+import Headers from '../../middlewares/headers';
 
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      userData: {},
+      userData: {
+        photo: '',
+        email: '',
+        name: ''
+      },
       chatList: [],
+      chats: [],
       settingsScreen: {
         enabled: false,
         classes: "right-settings-screen"
@@ -27,6 +32,7 @@ class App extends Component {
     this.toggleSettings = this.toggleSettings.bind(this);
     this.searchHandler = this.searchHandler.bind(this);
     this.closeSearchScreen = this.closeSearchScreen.bind(this);
+    this.openChat = this.openChat.bind(this);
   }
 
 
@@ -40,16 +46,29 @@ class App extends Component {
     }
 
 
-    fetch('http://localhost:3002/api/getUserData', reqData)
+    fetch('http://localhost:3001/api/getUserData', reqData)
     .then(response => response.json())
     .then(json => this.setState({userData: json}));
 
-    fetch('http://localhost:3002/api/getChats', reqData)
+    fetch('http://localhost:3001/api/getChats', reqData)
     .then(response => response.json())
     .then(json => {
-      if(json.chatList.length > 0) {
+      if(json.length > 0) {
+
         this.setState({
-          chatList: json.chatList
+          chats: json,
+          chatList: json.map((item, nr) =>
+            <ChatListItem 
+              open={this.openChat}
+              chatid={item.chatId}
+              img={item.userPhoto}
+              name={item.name}
+              activitystatus={(item.userIsActive === 1) ? 'chat-img chat-img-active' : 'chat-img'}
+              key={nr}
+              content={item.content}
+              userid={item.userId}
+            />
+          )
         });
       }
     });
@@ -109,11 +128,19 @@ class App extends Component {
     }
   }
 
+  openChat(idChat) {
+    this.props.history.push(`/chat/${idChat}`);
+  }
+
   render() {
     return (
       <div className="main-screen">
         <header className="main-header">
-          <h1>{this.props.user}</h1>
+          <div>
+             <img src={(this.state.userData.photo) ? this.state.userData.photo : 'https://www.imsa-search.com/wp-content/uploads/2018/06/avatar.png'} className="user-photo"/>
+             <h2>My chats:</h2>
+          </div>
+         
           <button className="btn-menu" onClick={this.toggleSettings}> 
             <FontAwesomeIcon icon={faSlidersH} />
           </button>
@@ -131,10 +158,11 @@ class App extends Component {
           settings={this.goToSettings}
           logout={this.props.logout}
         />
-
+        
         <ul className="chats-container">
-
+          {this.state.chatList}
         </ul>
+        
       </div>
     );
   }
@@ -170,10 +198,20 @@ const SearchScreen = (props) => {
 };
 
 const ChatListItem = (props) => {
+  let content = props.content;
+
+  if(content.length > 22) {
+    content = content.slice(0, 19);
+    content += '...';
+  }
+
   return (
-    <li className="chat=list-item" onClick={()=> props.open(props.chatid)}>
-      <img src={props.img} className="chat-img" />
-      <p>{props.name}</p>
+    <li className="chat-list-item" onClick={()=> props.open(props.chatid)}>
+      <img src={(props.img) ? props.img : 'https://www.imsa-search.com/wp-content/uploads/2018/06/avatar.png'} className={props.activitystatus} />
+      <div>
+        <p className="chat-list-name"><b>{props.name}</b></p>
+        <p className="chat-list-content">{content}</p>
+      </div>
     </li>
   );
 };

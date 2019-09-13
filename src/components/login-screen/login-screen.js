@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-//import {withRouter} from 'react-router-dom';
 import './login-screen.css';
-import Logger from './../../logger';
-import Headers from './../../addons/headers';
-//import Styled from 'styled-components';
+import Logger from '../../middlewares/logger';
+import Headers from '../../middlewares/headers';
+import Links from '../../middlewares/links'
+
 
 
 
@@ -11,7 +11,6 @@ class LoginScreen extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            register: false,
             registerScreen: false,
             loginForm: {
                 email: '',
@@ -24,9 +23,17 @@ class LoginScreen extends Component {
                     second: ''
                 },
                 name: '',
-                surname: ''
+                surname: '',
             },
-            loginStatus: 0
+            loginStatus: 0,
+            alertPanel: {
+                classes: 'alert-panel',
+                message: ''
+            },
+            buttons: {
+                left: 'btn-mode btn-left btn-active',
+                right: 'btn-mode btn-right'
+            }
         }
 
         this.enableFormLogin = this.enableFormLogin.bind(this);
@@ -40,38 +47,69 @@ class LoginScreen extends Component {
         this.formRegisterSecondPwHandler = this.formRegisterSecondPwHandler.bind(this);
         this.formRegisterNameHandler = this.formRegisterNameHandler.bind(this);
         this.formRegisterSurnameHandler = this.formRegisterSurnameHandler.bind(this);
+        this.alertClose = this.alertClose.bind(this);
     }
 
     
     enableFormLogin = (event) => {
         this.setState({
-            registerScreen: false
+            registerScreen: false,
+            buttons: {
+                left: 'btn-mode btn-left btn-active',
+                right: 'btn-mode btn-right'
+            }
         });
     }
     enableRegisterLogin = (event) => {
         this.setState({
-            registerScreen: true
+            registerScreen: true,
+            buttons: {
+                left: 'btn-mode btn-left',
+                right: 'btn-mode btn-right btn-active'
+            }
         });
     }
 
 
     handleLogin = (event) => {
         event.preventDefault();
-        // fetch('http://localhost:3002/login', {
-        //     method: 'POST',
-        //     mode: "cors",
-        //     credentials: "same-origin",
-        //     headers: Headers,
-        //     body: `user=${this.state.loginForm.email}&password=${this.state.loginForm.password}`
-        // }).then(response => {
-        //     if(response.status === 200) {
-        //         Logger.login(() => this.props.login(this.state.loginForm.email));
-        //         this.props.history.push('/');
-        //     }
-        // });
-        Logger.login(() => this.props.login(this.state.loginForm.email));
-        this.props.history.push('/');
-        
+        let {email, password} = this.state.loginForm;
+
+        fetch(`http://localhost:3001/api/login`, {
+            method: 'POST',
+            mode: "cors",
+            credentials: "same-origin",
+            headers: Headers,
+            body: `email=${email}&password=${password}`
+        }).then(response => response.json())
+        .then(json => {
+            console.log(json.loginStatus);
+            switch(parseInt(json.loginStatus)) {
+                case -1:
+                    this.setState({
+                        alertPanel: {
+                            classes: 'alert-panel alert-panel-show',
+                            message: 'Incorrect login or password. Try again'
+                        }
+                    });
+                    break;
+                case 0:
+                    this.setState({
+                        alertPanel: {
+                            classes: 'alert-panel alert-panel-show',
+                            message: 'You account is not activated. Check your mailbox'
+                        }
+                    });
+                    break;
+                case 1:
+                    console.log(json.user);
+                    Logger.login(() => this.props.login(json.user));
+                    this.props.history.push('/');
+                    break;
+                default:
+                    break;
+            }
+        });  
     }
 
     formLoginEmailHandler = (event) => {
@@ -94,6 +132,54 @@ class LoginScreen extends Component {
 
     handleRegister(event) {
         event.preventDefault();
+        if(this.state.registerForm.password.first !== this.state.registerForm.password.second) {
+            this.setState({
+                alertPanel: {
+                    classes: 'alert-panel alert-panel-show',
+                    message: 'Please type passwords again'
+                }
+            });
+            return;
+        }
+        if(this.state.registerForm.password.first.length < 8) {
+            this.setState({
+                alertPanel: {
+                    classes: 'alert-panel alert-panel-show',
+                    message: 'Your password must be at least 8 characters long'
+                }
+            });
+        }
+        let {email, password, name, surname} = this.state.registerForm;
+        fetch(`${Links.api}/register`, {
+            method: 'POST',
+            mode: 'cors',
+            credentials: 'same-origin',
+            headers: Headers,
+            body: `email=${email}&password=${password.first}&name=${name}&surname=${surname}`
+        }).then(response => response.json())
+        .then(json => {
+            switch(json.registerStatus) {
+                case 0:
+                    this.setState({
+                        alertPanel: {
+                            classes: 'alert-panel alert-panel-show',
+                            message: 'An account already exists with your address email. Try again'
+                        }
+                    });
+                    break;
+                case 1:
+                    this.setState({
+                        alertPanel: {
+                            classes: 'alert-panel alert-panel-show',
+                            message: 'You will receive email message to verify your account. Check youe mailbox'
+                        }
+                    });
+                    break;
+                default:
+                    break;
+                }
+            }
+        );
     }
 
     formRegisterEmailHandler = (event) => {
@@ -157,15 +243,24 @@ class LoginScreen extends Component {
         });
     }
 
+    alertClose() {
+        this.setState({
+            alertPanel: {
+                classes: 'alert-panel alert-panel-hide',
+                message: ''
+            }
+        })
+    }
+
     render() {
         return(
             <div className="login-screen">
-                <header>
+                <header className="header-login-screen">
                     @rusio chat app
                 </header>
                 <div className="buttons">
-                    <button onClick={this.enableFormLogin} className="btn-mode btn-left">Login</button>
-                    <button onClick={this.enableRegisterLogin} className="btn-mode btn-right">Register</button>
+                    <button onClick={this.enableFormLogin} className={this.state.buttons.left}>Login</button>
+                    <button onClick={this.enableRegisterLogin} className={this.state.buttons.right}>Register</button>
                 </div>
                 <div className="forms"> 
                     {
@@ -188,7 +283,12 @@ class LoginScreen extends Component {
                         /> 
                     }           
                 </div>
-                <footer>
+                <AlertPanel 
+                    classes={this.state.alertPanel.classes}
+                    close={this.alertClose}
+                    message={this.state.alertPanel.message}
+                /> 
+                <footer className="footer-login-screen">
                     Designed by Mateusz Rusak
                 </footer>
             </div>
@@ -221,5 +321,13 @@ const FormRegister = (props) => {
     );
 }
 
-//export default withRouter(LoginScreen);
+const AlertPanel = (props) => {
+    return (
+        <aside className={props.classes}>
+            <p className="message">{props.message}</p>
+            <button onClick={props.close} className="btn-submit btn-confirm">Ok</button>
+        </aside>
+    );
+}
+
 export default LoginScreen;
