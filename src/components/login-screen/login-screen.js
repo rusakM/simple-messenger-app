@@ -83,7 +83,6 @@ class LoginScreen extends Component {
             body: `email=${email}&password=${password}`
         }).then(response => response.json())
         .then(json => {
-            console.log(json.loginStatus);
             switch(parseInt(json.loginStatus)) {
                 case -1:
                     this.setState({
@@ -102,7 +101,6 @@ class LoginScreen extends Component {
                     });
                     break;
                 case 1:
-                    console.log(json.user);
                     Logger.login(() => this.props.login(json.user));
                     this.props.history.push('/');
                     break;

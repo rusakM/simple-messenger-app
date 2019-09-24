@@ -8,7 +8,7 @@ import App from './app';
 ReactDOM.render(
     <CookiesProvider>
         <BrowserRouter>
-            <App />
+            <App messagesstore={[]}/>
         </BrowserRouter>
     </CookiesProvider>
     , document.getElementById('root'));
