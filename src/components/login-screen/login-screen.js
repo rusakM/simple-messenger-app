@@ -75,7 +75,7 @@ class LoginScreen extends Component {
         event.preventDefault();
         let {email, password} = this.state.loginForm;
 
-        fetch(`http://localhost:3001/api/login`, {
+        fetch(`${Links.api}/login`, {
             method: 'POST',
             mode: "cors",
             credentials: "same-origin",

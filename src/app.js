@@ -62,8 +62,8 @@ class App extends Component {
         return( 
             <Switch>
                 <Route exact path='/login' component={() => <LoginScreen login={this.logIn} history={this.props.history} cookiesremover={this.cookiesRemover} />} />
-                <Route exact path='/' component={() => <MainScreen user={this.state.user} history={this.props.history} logout={this.logOut} store={this.props.messagesstore}/> }/>
-                <Route path='/chat' component={() => <ChatScreen user={this.state.user} history={this.props.history} store={this.props.messagesstore}/>} />
+                <Route exact path='/' component={() => <MainScreen user={this.state.user} history={this.props.history} logout={this.logOut} /> }/>
+                <Route path='/chat' component={() => <ChatScreen user={this.state.user} history={this.props.history} />} />
                 {
                     (!this.state.loggedin) ?
                         <Redirect from='/' to='/login' />

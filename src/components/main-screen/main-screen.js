@@ -3,6 +3,8 @@ import './main-screen.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSlidersH, faSignOutAlt, faUserCog, faTimes } from '@fortawesome/free-solid-svg-icons';
 import Headers from '../../middlewares/headers';
+import Avatar from './../../assets/avatar.png';
+import Store from './../../middlewares/store';
 
 
 class App extends Component {
@@ -55,18 +57,23 @@ class App extends Component {
     .then(json => {
       if(json.length > 0) {
 
+        for(let a = 0; a < json.length; a++) {
+          Store.insert(json[a]);
+        }
+
+        let arr = Store.getSortedChatArray();
         this.setState({
-          chats: json,
-          chatList: json.map((item, nr) =>
+          chats: arr,
+          chatList: arr.map((item, nr) => 
             <ChatListItem 
               open={this.openChat}
-              chatid={item.chatId}
-              img={item.userPhoto}
-              name={item.name}
-              activitystatus={(item.userIsActive === 1) ? 'chat-img chat-img-active' : 'chat-img'}
+              chatid={item}
+              img={Store[item].userPhoto}
+              name={Store[item].name}
+              activitystatus={(Store[item].userIsActive === 1) ? 'chat-img chat-img-active' : 'chat-img'}
               key={nr}
-              content={item.content}
-              userid={item.userId}
+              content={Store.getLastMessageContent(item)}
+              userid={Store[item].userId}
             />
           )
         });
@@ -137,7 +144,7 @@ class App extends Component {
       <div className="main-screen">
         <header className="main-header">
           <div>
-             <img src={(this.state.userData.photo) ? this.state.userData.photo : 'https://www.imsa-search.com/wp-content/uploads/2018/06/avatar.png'} className="user-photo"/>
+             <img src={(this.state.userData.photo) ? this.state.userData.photo : Avatar} className="user-photo"/>
              <h2>My chats:</h2>
           </div>
          
@@ -207,7 +214,7 @@ const ChatListItem = (props) => {
 
   return (
     <li className="chat-list-item" onClick={()=> props.open(props.chatid)}>
-      <img src={(props.img) ? props.img : 'https://www.imsa-search.com/wp-content/uploads/2018/06/avatar.png'} className={props.activitystatus} />
+      <img src={(props.img) ? props.img : Avatar} className={props.activitystatus} />
       <div>
         <p className="chat-list-name"><b>{props.name}</b></p>
         <p className="chat-list-content">{content}</p>

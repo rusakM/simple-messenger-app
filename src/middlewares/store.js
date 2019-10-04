@@ -45,6 +45,26 @@ class Store {
         delete this[chat];
     }
 
+    getLastMessageContent(chat) {
+        return this[chat].messages[this[chat].lastMessageId].messageContent;
+    }
+
+    getChatData(chat) {
+        chat = parseInt(chat);
+        console.log(chat);
+        return {
+            name: this[chat].name,
+            userPhoto: this[chat].userPhoto,
+            userId: this[chat].userId,
+            userIsActive: this[chat].userIsActive
+        }
+    }
+
+    getSortedMessagesArray(chat) {
+        let keys = Object.keys(this[chat].messages);
+        return keys.sort((a, b) => parseInt(a) > parseInt(b));
+    }
+
 }
 
     /* 
