@@ -1,12 +1,11 @@
-import React, { Component } from 'react';
+import React, { Component, createRef } from 'react';
 import Headers from '../../middlewares/headers';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {faArrowLeft} from '@fortawesome/free-solid-svg-icons';
 import './chat-screen.css';
-import Avatar from './../../assets/avatar.png';
+//import Avatar from './../../assets/avatar.png';
 import Store from './../../middlewares/store';
 import Links from './../../middlewares/links';
-import { parse } from 'url';
 
 
 
@@ -18,11 +17,17 @@ class Chat extends Component {
             chatId: parseInt(this.props.history.location.pathname.slice(6)),
             messageInput: "",
             chatData: {},
-            messagesList: []
+            messagesList: [],
+            scrollWithMount: true
         }
+
+        this.textareaRef = createRef();
+        this.messagesContainerRef = createRef();
         this.closeChat = this.closeChat.bind(this);
         this.sendMessage = this.sendMessage.bind(this);
         this.messageInputHandler = this.messageInputHandler.bind(this);
+        this.scrollToEnd = this.scrollToEnd.bind(this);
+        this.switchScrollWithMount = this.switchScrollWithMount.bind(this);
     }
 
     componentWillMount() {
@@ -60,15 +65,17 @@ class Chat extends Component {
         });
     }
 
-
-
     closeChat() {
         this.props.history.push('/');
     }
 
     sendMessage(event) {
         event.preventDefault();
-        console.log(this.state.messageInput);
+
+        if(event.target.value === "") {
+            return;
+        }
+
         fetch(`${Links.api}/sendMessage`, {
             method: 'POST',
             mode: "cors",
@@ -84,10 +91,8 @@ class Chat extends Component {
                 messagesList: Store.getSortedMessagesArray(this.state.chatId)
             });
         });
-        console.log(this.state.messageInput);
-        this.setState({
-            messageInput: ""
-        });
+        this.textareaRef.current.value = "";
+        this.scrollToEnd(true);
     }
 
     messageInputHandler(event) {
@@ -95,6 +100,43 @@ class Chat extends Component {
             messageInput: event.target.value
         });
     }
+
+    switchScrollWithMount() {
+        let {current} = this.messagesContainerRef;
+        let maxScroll = current.scrollHeight - current.offsetHeight;
+        //console.log((current.scrollTop - 10)+ " / " + maxScroll);
+        if((current.scrollTop) < maxScroll - 30) {
+            if(this.state.scrollWithMount) {
+                this.setState({
+                    scrollWithMount: false
+                })
+            }
+        }
+        else {
+            //console.log(current.scrollTop);
+            if(this.state.scrollWithMount === false) {
+                this.setState({
+                    scrollWithMount: true
+                })
+            }
+        }
+    }
+
+    scrollToEnd(sendingMessage=false) {
+        let {current} = this.messagesContainerRef;
+        
+        if(!this.state.scrollWithMount && !sendingMessage) {
+            return;
+        }
+        if(current.scrollHeight > current.offsetHeight) {
+            this.messagesContainerRef.current.scrollTop = current.scrollHeight - current.offsetHeight;
+        }
+    }
+
+    componentDidUpdate() {
+        this.scrollToEnd();
+    }
+
 
     render() {
         let {chatId} = this.state;
@@ -107,7 +149,11 @@ class Chat extends Component {
                     <h5>{this.state.chatData.name}</h5>
                 </header>
                 <div className="messages-container">
-                    <div className="messages">
+                    <div className="messages"
+                        onScroll={this.switchScrollWithMount}
+                        ref={this.messagesContainerRef}
+                        
+                    >
                         {
                             this.state.messagesList.map((item, nr) => {
                                 let msg = Store[chatId].messages[item];
@@ -130,11 +176,13 @@ class Chat extends Component {
                             )})
                         }
                     </div>
+                    
                     <div className="messages-controls">
                         <div className="message-input">
                             <MessageInput 
                                 changehandler={this.messageInputHandler}
                                 messageInput={this.state.messageInput}
+                                reference={this.textareaRef}
                             />
                         </div>
                         <button className="btn-send" onClick={this.sendMessage}>Send</button>
@@ -148,7 +196,7 @@ class Chat extends Component {
 
 const MessageInput = (props) => {
     return (
-        <textarea onChange={props.changehandler} >
+        <textarea onChange={props.changehandler} ref={props.reference}>
             {
                 props.message
             }
@@ -157,21 +205,21 @@ const MessageInput = (props) => {
 }
 
 const Message = (props) => {
-    let timestamp = new Date();
-    timestamp = timestamp.setTime(parseInt(props.timestamp));
-    let timeNow = new Date();
-    let strTime = "";
-    if(timestamp.toDateString() === timeNow.toDateString()) {
-        strTime += timestamp.getHours() + ":" + timestamp.getMinutes();
-    }
-    else {
-        strTime += timestamp.toDateString();
-    }
+    // let timestamp = new Date();
+    // timestamp = timestamp.setTime(parseInt(props.timestamp));
+    // let timeNow = new Date();
+    // let strTime = "";
+    // if(timestamp.toDateString() === timeNow.toDateString()) {
+    //     strTime += timestamp.getHours() + ":" + timestamp.getMinutes();
+    // }
+    // else {
+    //     strTime += timestamp.toDateString();
+    // }
 
     return (
         <div className={props.classes + " msg-box"}>
             <div className="messageContent">{props.content}</div>
-            <div>{strTime}</div>
+            
         </div>
     );
 }
