@@ -205,7 +205,7 @@ const SearchScreen = (props) => {
 };
 
 const ChatListItem = (props) => {
-  let content = props.content;
+  let {content, img, chatid, activitystatus, name} = props;
 
   if(content.length > 22) {
     content = content.slice(0, 19);
@@ -213,14 +213,22 @@ const ChatListItem = (props) => {
   }
 
   return (
-    <li className="chat-list-item" onClick={()=> props.open(props.chatid)}>
-      <img src={(props.img) ? props.img : Avatar} className={props.activitystatus} />
+    <li className="chat-list-item" onClick={()=> props.open(chatid)}>
+      <img src={(img) ? img : Avatar} className={activitystatus} alt={name + " cover photo"} />
       <div>
-        <p className="chat-list-name"><b>{props.name}</b></p>
+        <p className="chat-list-name"><b>{name}</b></p>
         <p className="chat-list-content">{content}</p>
       </div>
     </li>
   );
 };
+
+const SearchItem = (props) => {
+  let {img, chatid, name} = props;
+  let textBtn = "Start chat";
+  if(chatid) {
+    textBtn = "Continue chat";
+  }
+}
 
 export default App;
