@@ -72,7 +72,7 @@ class Chat extends Component {
     sendMessage(event) {
         event.preventDefault();
 
-        if(event.target.value === "") {
+        if(this.textareaRef.current.value === "") {
             return;
         }
 
@@ -88,7 +88,8 @@ class Chat extends Component {
             Store.insert(json);
             this.setState({
                 chatData: Store[this.state.chatId],
-                messagesList: Store.getSortedMessagesArray(this.state.chatId)
+                messagesList: Store.getSortedMessagesArray(this.state.chatId),
+                messageInput: ""
             });
         });
         this.textareaRef.current.value = "";

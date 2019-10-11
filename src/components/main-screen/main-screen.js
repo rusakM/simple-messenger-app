@@ -5,6 +5,9 @@ import { faSlidersH, faSignOutAlt, faUserCog, faTimes } from '@fortawesome/free-
 import Headers from '../../middlewares/headers';
 import Avatar from './../../assets/avatar.png';
 import Store from './../../middlewares/store';
+import Links from './../../middlewares/links';
+
+
 
 
 class App extends Component {
@@ -26,7 +29,8 @@ class App extends Component {
       searchScreen: {
         enabled: false,
         classes: "search-items-container"
-      }
+      },
+      searchItems: []
     };
 
 
@@ -48,11 +52,11 @@ class App extends Component {
     }
 
 
-    fetch('http://localhost:3001/api/getUserData', reqData)
+    fetch(`${Links.api}/getUserData`, reqData)
     .then(response => response.json())
     .then(json => this.setState({userData: json}));
 
-    fetch('http://localhost:3001/api/getChats', reqData)
+    fetch(`${Links.api}/getChats`, reqData)
     .then(response => response.json())
     .then(json => {
       if(json.length > 0) {
@@ -62,6 +66,7 @@ class App extends Component {
         }
 
         let arr = Store.getSortedChatArray();
+        console.log(Store.getChatsWithUsers());
         this.setState({
           chats: arr,
           chatList: arr.map((item, nr) => 
@@ -94,6 +99,31 @@ class App extends Component {
         },
         searchBar: event.target.value
       });
+
+      if(event.target.value.length > 2) {
+        fetch(`${Links.api}/search`,
+        {
+          method: 'POST',
+          mode: "cors",
+          credentials: "same-origin",
+          headers: Headers,
+          body: `user=${this.props.user}&query=${event.target.value}`
+        }).then(response => response.json())
+        .then(json => {
+          let usersAndChats = Store.getChatsWithUsers();
+          json = json.map((item) => {
+            for(let a = 0; a < usersAndChats.length; a++) {
+              if(parseInt(item.userId) === parseInt(usersAndChats[a].user)) {
+                item.chatId = parseInt(usersAndChats[a].chat);
+              }
+            }
+            return item;
+          });
+          this.setState({
+            searchItems: json
+          });
+        });
+      }
     }
     else {
       this.setState({
@@ -101,7 +131,8 @@ class App extends Component {
           enabled: false,
           classes: "search-items-container search-items-container-hide"
         },
-        searchBar: ""
+        searchBar: "",
+        searchItems: []
       });
     }
   }
@@ -144,7 +175,7 @@ class App extends Component {
       <div className="main-screen">
         <header className="main-header">
           <div>
-             <img src={(this.state.userData.photo) ? this.state.userData.photo : Avatar} className="user-photo"/>
+             <img src={(this.state.userData.photo) ? this.state.userData.photo : Avatar} className="user-photo" alt={this.state.userData.name} />
              <h2>My chats:</h2>
           </div>
          
@@ -157,6 +188,9 @@ class App extends Component {
             <SearchScreen 
               screen={this.state.searchScreen}
               close={this.closeSearchScreen}
+              searchitems={this.state.searchItems}
+              user={this.props.user}
+              open={this.openChat}
             />
         </div>
         
@@ -200,6 +234,19 @@ const SearchScreen = (props) => {
           <FontAwesomeIcon icon={faTimes} />
         </button>
       </div>
+      <ul className="search-results">
+        {
+          props.searchitems.map((item, nr) => {
+            return ( <SearchItem 
+              data={item}
+              user={props.user}
+              key={nr}
+              open={props.open}
+            />
+            )
+          })
+        }
+      </ul>
     </aside>
   );
 };
@@ -224,11 +271,39 @@ const ChatListItem = (props) => {
 };
 
 const SearchItem = (props) => {
-  let {img, chatid, name} = props;
+  let {data, open, user} = props;
   let textBtn = "Start chat";
-  if(chatid) {
+  if(data.chatId > 0) {
     textBtn = "Continue chat";
   }
+
+  return (
+    <li className="search-item">
+      <img src={(data.img)? data.img : Avatar} alt={data.name + " cover photo"} className="user-photo" />
+        <h6 className="search-item-name">{data.name}</h6>
+        <button className="start-chat-btn" 
+          onClick={() => {
+            if(data.chatId) {
+              open(data.chatId);
+            }
+            else {
+              fetch(`${Links.api}/startChat`, {
+                method: 'POST',
+                mode: "cors",
+                credentials: "same-origin",
+                headers: Headers,
+                body: `first=${user}&second=${data.userId}`
+              })
+              .then(response => response.json())
+              .then(json => {
+                open(parseInt(json.chatId));
+              });
+            }
+          }}>
+          {textBtn}
+        </button>
+    </li>
+  );
 }
 
 export default App;

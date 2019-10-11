@@ -65,6 +65,15 @@ class Store {
         return keys.sort((a, b) => parseInt(a) > parseInt(b));
     }
 
+    getChatsWithUsers() {
+        let keys = Object.keys(this);
+        return keys.map(a => {
+            return {
+                user: this[a].userId,
+                chat: a
+            };
+        });
+    }
 }
 
     /* 
