@@ -74,6 +74,14 @@ class Store {
             };
         });
     }
+
+    clearStore() {
+        let keys = Object.keys(this);
+        for(let a = 0; a < keys.length; a++) {
+            delete this[a];
+        }
+        console.log(Object.keys(this));
+    }
 }
 
     /* 

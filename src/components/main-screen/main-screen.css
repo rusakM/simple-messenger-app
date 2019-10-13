@@ -221,12 +221,32 @@ body {
     display: flex;
     position: relative;
     flex-direction: column;
+    padding: 0;
+    margin: 0;
 }
 
 .search-item {
     display:flex;
     flex-direction: row;
     cursor: default;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.search-item-name {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    font-size: 16px;
+    font-weight: 400;
+}
+
+.start-chat-btn {
+    border: 1px solid #04BF68;
+    height: 32px;
+    border-radius: 16px;
+    background-color: #04BF68;
+    color: #F2F2F2;
+    
 }
 
 .chats-container {

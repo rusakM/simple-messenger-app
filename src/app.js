@@ -21,8 +21,7 @@ class App extends Component {
 
         this.state = {
             loggedin: (cookies.get('user')) ? true : false,
-            user: cookies.get('user') || false,
-            userChats: []
+            user: cookies.get('user') || false
         }
         this.logIn = this.logIn.bind(this);
         this.logOut = this.logOut.bind(this);
@@ -48,11 +47,8 @@ class App extends Component {
 
     logOut() {
         this.setState({
-            chat: {
-                userId: 0,
-                chatId: 0
-            },
-            userChats: []
+            loggedin: false,
+            user: false
         });
         this.cookiesRemover();
         this.props.history.push('/login');

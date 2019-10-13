@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './main-screen.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSlidersH, faSignOutAlt, faUserCog, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faSlidersH, faSignOutAlt, faUserCog, faTimes, faArrowRight, faPlus } from '@fortawesome/free-solid-svg-icons';
 import Headers from '../../middlewares/headers';
 import Avatar from './../../assets/avatar.png';
 import Store from './../../middlewares/store';
@@ -43,6 +43,10 @@ class App extends Component {
 
 
   componentWillMount() {
+    if(!this.props.user) {
+      this.props.history.push('/login');
+    }
+
     const reqData = {
       method: 'POST',
       mode: "cors",
@@ -216,7 +220,10 @@ const SettingsScreen = (props) => {
         <li onClick={props.settings} className="settings-list-item">
           User settings <FontAwesomeIcon icon={faUserCog} />
         </li>
-        <li onClick={props.logout} className="settings-list-item">
+        <li onClick={() => {
+          Store.clearStore();
+          props.logout();
+        }} className="settings-list-item">
           Log Out <FontAwesomeIcon icon={faSignOutAlt} />
         </li>
       </ul>
@@ -272,9 +279,9 @@ const ChatListItem = (props) => {
 
 const SearchItem = (props) => {
   let {data, open, user} = props;
-  let textBtn = "Start chat";
+  let textBtn = <FontAwesomeIcon icon={faPlus} />;
   if(data.chatId > 0) {
-    textBtn = "Continue chat";
+    textBtn = <FontAwesomeIcon icon={faArrowRight} />;
   }
 
   return (
