@@ -4,10 +4,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSlidersH, faSignOutAlt, faUserCog, faTimes, faArrowRight, faPlus } from '@fortawesome/free-solid-svg-icons';
 import Headers from '../../middlewares/headers';
 import Avatar from './../../assets/avatar.png';
-import Store from './../../middlewares/store';
+import store from './../../middlewares/store';
 import Links from './../../middlewares/links';
 
-
+let Store = new store();
 
 
 class App extends Component {
@@ -221,7 +221,7 @@ const SettingsScreen = (props) => {
           User settings <FontAwesomeIcon icon={faUserCog} />
         </li>
         <li onClick={() => {
-          Store.clearStore();
+          Store = new store();
           props.logout();
         }} className="settings-list-item">
           Log Out <FontAwesomeIcon icon={faSignOutAlt} />
