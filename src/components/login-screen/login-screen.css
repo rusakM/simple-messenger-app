@@ -2,23 +2,33 @@
 
 body {
     font-family: Verdana, Geneva, Tahoma, sans-serif;
+    background-color: #F2F2F2;
 }
 
-header {
-    color: dodgerblue;
+.loginScreen {
+    width: 100%;
+    display: flex;
+    position: relative;
+    flex-direction: column;
+}
+
+.header-login-screen {
+    display: flex;
+    position: relative;
+    color: #04BF68;
     font-family: 'Pacifico', cursive;
     font-size: 2.5em;
     padding-bottom: 1.5em;
 }
 
-form {
+.forms {
     text-align: center;
     position: relative;
     display: flex;
     width: 90%;
     left: 50%;
     transform: translateX(-50%);
-    border: 2px black solid;
+    border: 2px #04BF68 solid;
     margin: 0;
     flex-direction: column;
     align-items: center;
@@ -30,20 +40,28 @@ form {
     border-bottom-right-radius: 1em;
 }
 
-footer {
-    color: dodgerblue;
+.forms > form {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.footer-login-screen {
+    color: #04BF68;
     font-family: cursive;
-    position: absolute;
-    bottom: 0;
+    position: relative;
     text-align: center;
+    display: flex;
+    justify-self: end;
+    justify-content: center;
+    align-items: center;
     width: 100%;
     margin: 0;
     padding: 2em 0 1em 0;
     left: 0;
-}
-
-.loginScreen {
-    width: 100%;
 }
 
 .buttons {
@@ -54,18 +72,18 @@ footer {
     width: 90%;
     left: 50%;
     transform: translateX(-50%);
-    border: 2px black solid;
+    border: 2px #04BF68 solid;
     border-top-left-radius: 1em;
     border-top-right-radius: 1em;
     margin: 0;
     padding: 0;
+    color: #02733E;
 }
 
 .btn-mode {
     width: 50%;
     height: 2em;
-    background-color: white;
-    color: black;
+    background-color: #F2F2F2;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -77,19 +95,19 @@ footer {
 
 .btn-left {
     border-top-left-radius: 1em;
-    border-right: 1px solid black;
+    border-right: 1px solid #04BF68;
     padding-left: 2px;
 }
 
 .btn-right {
     border-top-right-radius: 1em;
-    border-left: 1px solid black;
+    border-left: 1px solid #04BF68;
     padding-right: 2px;
 }
 
 .btn-active, .btn-submit {
-    color: white;
-    background-color: dodgerblue;
+    color: #F2F2F2;
+    background-color: #04BF68;
 }
 
 .btn-submit {
@@ -101,28 +119,92 @@ footer {
 }
 
 .input-field {
-    color: #333;
+    color: #02733E;
     border: none;
     display: flex;
     width: 80%;
-    border-bottom: 1px #333 solid;
+    border-bottom: 1px #04BF68 solid;
     padding-top: 1.5em;
+    background-color: #F2F2F2;
 }
 
+.alert-panel {
+    position: fixed;
+    display: flex;
+    left: 100%;
+    transform: translateX(0%);
+    top: 25%;
+    width: 80%;
+    background: whitesmoke;
+    border: 2px solid #04BF68;
+    border-radius: 15px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 15px;
+}
+
+.alert-panel-show {
+    left: 50%;
+    transform: translateX(-50%);
+    animation-name: show-alert;
+    animation-duration: 0.5s;
+}
+
+.alert-panel-hide {
+    left: 100%;
+    transform: translateX(0%);
+    animation-name: hide-alert;
+    animation-duration: 0.5s;
+}
+
+
+@keyframes show-alert {
+    from {
+        left: 100%;
+        transform: translateX(0%);
+    }
+    to {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+}
+
+@keyframes hide-alert {
+    from {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    to {
+        left: 100%;
+        transform: translateX(0%);
+    }
+}
+
+@media (max-width: 300px) {
+    .header-login-screen {
+        font-size: 2em;
+    }
+}
+
+
 @media (min-width: 400px) {
-    .buttons, form {
+    .buttons, .forms, .alert-panel {
         width: 70%;
+    }
+    .btn-confirm {
+        width: 35%;
     }
 }
 
 @media (min-width: 550px) {
-    .buttons, form {
+    .buttons, .forms, .alert-panel {
         width: 60%;
     }
 }
 
 @media (min-width: 1024px) {
-    .buttons form {
+    .buttons, .forms, .alert-panel {
         width: 50%;
     }
 }
