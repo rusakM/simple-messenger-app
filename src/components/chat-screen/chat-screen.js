@@ -4,8 +4,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {faArrowLeft} from '@fortawesome/free-solid-svg-icons';
 import './chat-screen.css';
 //import Avatar from './../../assets/avatar.png';
-import Store from './../../middlewares/store';
+import store from './../../middlewares/store';
 import Links from './../../middlewares/links';
+
+let Store = new store();
 
 
 
