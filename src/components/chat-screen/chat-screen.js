@@ -25,11 +25,13 @@ class Chat extends Component {
 
         this.textareaRef = createRef();
         this.messagesContainerRef = createRef();
+        this.photoRef = createRef();
         this.closeChat = this.closeChat.bind(this);
         this.sendMessage = this.sendMessage.bind(this);
         this.messageInputHandler = this.messageInputHandler.bind(this);
         this.scrollToEnd = this.scrollToEnd.bind(this);
         this.switchScrollWithMount = this.switchScrollWithMount.bind(this);
+        this.photoBtn = this.photoBtn.bind(this);
     }
 
     componentWillMount() {
@@ -140,6 +142,9 @@ class Chat extends Component {
         this.scrollToEnd();
     }
 
+    photoBtn() {
+        this.photoRef.current.click();
+    }
 
     render() {
         let {chatId} = this.state;
@@ -149,13 +154,13 @@ class Chat extends Component {
                     <button className="btn-go-back" onClick={this.closeChat}>
                         <FontAwesomeIcon icon={faArrowLeft} />
                     </button>
+                    <img src={`${Links.cdn}/photo/${this.state.chatData.userId}`} alt={this.state.chatData.name} className="chat-photo"/>
                     <h5>{this.state.chatData.name}</h5>
                 </header>
                 <div className="messages-container">
                     <div className="messages"
                         onScroll={this.switchScrollWithMount}
                         ref={this.messagesContainerRef}
-                        
                     >
                         {
                             this.state.messagesList.map((item, nr) => {
@@ -175,6 +180,7 @@ class Chat extends Component {
                                     timestamp={msg.timestamp}
                                     key={nr}
                                     classes={classes}
+                                    messageid={item}
                                 />
                             )})
                         }
@@ -185,7 +191,9 @@ class Chat extends Component {
                             changehandler={this.messageInputHandler}
                             messageInput={this.state.messageInput}
                             reference={this.textareaRef}
+                            photobtnclick={this.photoBtn}
                         />
+                        <input type="file" ref={this.photoRef} className="file-container" />
                         <button className="btn-send" onClick={this.sendMessage}>Send</button>
                     </div>
                 </div> 
@@ -203,7 +211,7 @@ const MessageInput = (props) => {
                     props.message
                 }
             </textarea>
-            <button className="btn-camera">
+            <button className="btn-camera" onClick={props.photobtnclick}>
                 <FontAwesomeIcon icon={faCamera} />
             </button>
         </div>
@@ -221,11 +229,22 @@ const Message = (props) => {
     // else {
     //     strTime += timestamp.toDateString();
     // }
+    let img = "";
+    if(props.type) {
+        img = <img src={`${Links.cdn}/message/${props.messageid}`} className="message-img" />
+    }
+
 
     return (
         <div className={props.classes + " msg-box"}>
-            <div className="message-content">{props.content}</div>
-            
+            <div className="message-content">
+                {
+                    props.content
+                }
+            </div>
+            {
+                img
+            }
         </div>
     );
 }
