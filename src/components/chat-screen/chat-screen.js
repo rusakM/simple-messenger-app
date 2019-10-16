@@ -1,7 +1,7 @@
 import React, { Component, createRef } from 'react';
 import Headers from '../../middlewares/headers';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {faArrowLeft} from '@fortawesome/free-solid-svg-icons';
+import {faArrowLeft, faCamera} from '@fortawesome/free-solid-svg-icons';
 import './chat-screen.css';
 //import Avatar from './../../assets/avatar.png';
 import store from './../../middlewares/store';
@@ -181,13 +181,11 @@ class Chat extends Component {
                     </div>
                     
                     <div className="messages-controls">
-                        <div className="message-input">
-                            <MessageInput 
-                                changehandler={this.messageInputHandler}
-                                messageInput={this.state.messageInput}
-                                reference={this.textareaRef}
-                            />
-                        </div>
+                        <MessageInput 
+                            changehandler={this.messageInputHandler}
+                            messageInput={this.state.messageInput}
+                            reference={this.textareaRef}
+                        />
                         <button className="btn-send" onClick={this.sendMessage}>Send</button>
                     </div>
                 </div> 
@@ -199,11 +197,16 @@ class Chat extends Component {
 
 const MessageInput = (props) => {
     return (
-        <textarea onChange={props.changehandler} ref={props.reference}>
-            {
-                props.message
-            }
-        </textarea>
+        <div className="message-input">
+            <textarea onChange={props.changehandler} ref={props.reference}>
+                {
+                    props.message
+                }
+            </textarea>
+            <button className="btn-camera">
+                <FontAwesomeIcon icon={faCamera} />
+            </button>
+        </div>
     )
 }
 
