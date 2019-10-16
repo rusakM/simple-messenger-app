@@ -179,7 +179,7 @@ class App extends Component {
       <div className="main-screen">
         <header className="main-header">
           <div>
-             <img src={(this.state.userData.photo) ? this.state.userData.photo : Avatar} className="user-photo" alt={this.state.userData.name} />
+             <img src={(this.state.userData.photo) ? `${Links.cdn}/photo/${this.props.user}` : Avatar} className="user-photo" alt={this.state.userData.name} />
              <h2>My chats:</h2>
           </div>
          
@@ -259,16 +259,25 @@ const SearchScreen = (props) => {
 };
 
 const ChatListItem = (props) => {
-  let {content, img, chatid, activitystatus, name} = props;
+  let {content, img, chatid, activitystatus, name, userid} = props;
+  let link;
+  if(img) {
+    link = `${Links.cdn}/photo/${userid}`;
+    console.log(link);
+    console.log(userid);
+  }
+  else {
+    link = Avatar;
+  }
 
   if(content.length > 22) {
     content = content.slice(0, 19);
     content += '...';
   }
-
+  
   return (
     <li className="chat-list-item" onClick={()=> props.open(chatid)}>
-      <img src={(img) ? img : Avatar} className={activitystatus} alt={name + " cover photo"} />
+      <img src={link} className={activitystatus} alt={name + " cover photo"} />
       <div>
         <p className="chat-list-name"><b>{name}</b></p>
         <p className="chat-list-content">{content}</p>
@@ -286,7 +295,7 @@ const SearchItem = (props) => {
 
   return (
     <li className="search-item">
-      <img src={(data.img)? data.img : Avatar} alt={data.name + " cover photo"} className="user-photo" />
+      <img src={(data.photo)? `${Links.cdn}/photo/${data.userId}` : Avatar} alt={data.name + " cover photo"} className="user-photo" />
         <h6 className="search-item-name">{data.name}</h6>
         <button className="start-chat-btn" 
           onClick={() => {
