@@ -224,7 +224,7 @@ const Message = (props) => {
 
     return (
         <div className={props.classes + " msg-box"}>
-            <div className="messageContent">{props.content}</div>
+            <div className="message-content">{props.content}</div>
             
         </div>
     );
