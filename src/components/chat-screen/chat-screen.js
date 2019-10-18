@@ -1,11 +1,13 @@
 import React, { Component, createRef } from 'react';
 import Headers from '../../middlewares/headers';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {faArrowLeft, faCamera} from '@fortawesome/free-solid-svg-icons';
+import {faArrowLeft, faCamera, faTimesCircle} from '@fortawesome/free-solid-svg-icons';
 import './chat-screen.css';
 //import Avatar from './../../assets/avatar.png';
 import store from './../../middlewares/store';
 import Links from './../../middlewares/links';
+import Background from './../../assets/grey_bg.png';
+import Sharp from 'sharp';
 
 let Store = new store();
 
@@ -18,9 +20,12 @@ class Chat extends Component {
         this.state = {
             chatId: parseInt(this.props.history.location.pathname.slice(6)),
             messageInput: "",
+            isSendingPhoto: false,
             chatData: {},
             messagesList: [],
-            scrollWithMount: true
+            scrollWithMount: true,
+            fileAlertClasses: "alert-panel",
+            photoPreviewClasses: "photo-preview"
         }
 
         this.textareaRef = createRef();
@@ -32,6 +37,9 @@ class Chat extends Component {
         this.scrollToEnd = this.scrollToEnd.bind(this);
         this.switchScrollWithMount = this.switchScrollWithMount.bind(this);
         this.photoBtn = this.photoBtn.bind(this);
+        this.fileHandler = this.fileHandler.bind(this);
+        this.closeFileAlert = this.closeFileAlert.bind(this);
+        this.closePhotoPreview = this.closePhotoPreview.bind(this);
     }
 
     componentWillMount() {
@@ -76,16 +84,18 @@ class Chat extends Component {
     sendMessage(event) {
         event.preventDefault();
 
-        if(this.textareaRef.current.value === "") {
+        if(this.textareaRef.current.value === "" && !this.state.isSendingPhoto) {
             return;
         }
+
+        let sendingPhoto = (this.state.isSendingPhoto) ? 1 : 0;
 
         fetch(`${Links.api}/sendMessage`, {
             method: 'POST',
             mode: "cors",
             credentials: "same-origin",
             headers: Headers,
-            body: `senderId=${this.props.user}&chatId=${this.state.chatId}&content=${this.state.messageInput}&messageType=0`
+            body: `senderId=${this.props.user}&chatId=${this.state.chatId}&content=${this.state.messageInput}&messageType=${sendingPhoto}`
         })
         .then(response => response.json())
         .then(json => {
@@ -93,7 +103,8 @@ class Chat extends Component {
             this.setState({
                 chatData: Store[this.state.chatId],
                 messagesList: Store.getSortedMessagesArray(this.state.chatId),
-                messageInput: ""
+                messageInput: "",
+                isSendingPhoto: false
             });
         });
         this.textareaRef.current.value = "";
@@ -146,6 +157,39 @@ class Chat extends Component {
         this.photoRef.current.click();
     }
 
+    fileHandler(event) {
+        event.preventDefault();
+        if(event.target.files.length === 0) {
+            return;
+        }
+        if(event.target.files[0].type !== "image/jpeg") {
+            this.setState({
+                fileAlertClasses: "alert-panel alert-panel-show"
+            });
+        }
+        else {
+            this.setState({
+                isSendingPhoto: true,
+                photoPreviewClasses: "photo-preview photo-preview-show"
+            });
+        }
+    }
+
+    closeFileAlert() {
+        this.setState({
+            fileAlertClasses: "alert-panel alert-panel-hide"
+        });
+        this.photoRef.current.value = '';
+    }
+
+    closePhotoPreview() {
+        this.setState({
+            isSendingPhoto: false,
+            photoPreviewClasses: "photo-preview photo-preview-hide"
+        });
+        this.photoRef.current.value = "";
+    }
+
     render() {
         let {chatId} = this.state;
         return(
@@ -193,9 +237,19 @@ class Chat extends Component {
                             reference={this.textareaRef}
                             photobtnclick={this.photoBtn}
                         />
-                        <input type="file" ref={this.photoRef} className="file-container" />
+                        <input type="file" ref={this.photoRef} className="file-container" onChange={this.fileHandler}/>
                         <button className="btn-send" onClick={this.sendMessage}>Send</button>
                     </div>
+                    <FileAlert 
+                        message="Only JPEG photos"
+                        close={this.closeFileAlert}
+                        classes={this.state.fileAlertClasses}
+                    />
+                    <PhotoPreview 
+                        img={(this.photoRef.current) ? this.photoRef.current.files : false}
+                        classes={this.state.photoPreviewClasses}
+                        close={this.closePhotoPreview}
+                    />
                 </div> 
             </div>
         );
@@ -230,23 +284,40 @@ const Message = (props) => {
     //     strTime += timestamp.toDateString();
     // }
     let img = "";
-    if(props.type) {
-        img = <img src={`${Links.cdn}/message/${props.messageid}`} className="message-img" />
+    if(props.type === 1) {
+        img = <img src={`${Links.cdn}/message/${props.messageid}`} className="message-img" alt={`messageid: ${props.messageid}`}/>
     }
-
 
     return (
         <div className={props.classes + " msg-box"}>
             <div className="message-content">
-                {
-                    props.content
-                }
+                {props.content}
             </div>
-            {
-                img
-            }
+            {img}
         </div>
     );
+}
+
+const FileAlert = (props) => {
+    return (
+        <aside className={props.classes}>
+            <p className="message">{props.message}</p>
+            <button onClick={props.close} className="btn-submit btn-confirm">Ok</button>
+        </aside>
+    )
+}
+
+const PhotoPreview = (props) => {
+    let img = <img src={Background} className="bg-picture-preview" />
+    if(props.img[0]) {
+        img = <img src={URL.createObjectURL(props.img[0])} className="bg-picture-preview" />
+    }
+    return (
+        <aside className={props.classes}>
+            <FontAwesomeIcon icon={faTimesCircle} onClick={props.close} className="btn-preview-close" />
+            { img }
+        </aside>
+    )
 }
 
 

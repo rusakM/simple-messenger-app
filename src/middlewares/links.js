@@ -1,4 +1,6 @@
+let adress = 'http://localhost:3001';
+
 export default {
-    api: 'http://localhost:3001/api',
-    cdn: 'http://localhost:3001/cdn'
+    api: `${adress}/api`,
+    cdn: `${adress}/cdn`
 }
