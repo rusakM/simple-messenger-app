@@ -11,8 +11,6 @@ import "./chat-screen.css";
 import store from "./../../middlewares/store";
 import Links from "./../../middlewares/links";
 import Background from "./../../assets/grey_bg.png";
-import { read } from "fs";
-//import Jimp from "jimp";
 
 let Store = new store();
 
@@ -28,7 +26,7 @@ class Chat extends Component {
       scrollWithMount: true,
       fileAlertClasses: "alert-panel",
       photoPreviewClasses: "photo-preview",
-      resizedPhoto: {}
+      resizedPhoto: ""
     };
 
     this.textareaRef = createRef();
@@ -157,60 +155,44 @@ class Chat extends Component {
     this.photoRef.current.click();
   }
 
-  resizePhoto() {
-    // let resizeRatio, imageRatio;
-    // const imageQuality = 70;
-
-    // Jimp.read(URL.createObjectURL(this.photoRef.current.files[0])).then(
-    //   image => {
-    //     image = image.quality(imageQuality);
-    //     if (image.getHeight() > 1200 || image.getWidth() > 1200) {
-    //       imageRatio = image.getWidth() / image.getHeight();
-    //       if (imageRatio > 1) {
-    //         resizeRatio = 1200 / image.getWidth();
-    //       } else {
-    //         resizeRatio = 1200 / image.getHeight();
-    //       }
-
-    //       image = image.scale(resizeRatio);
-    //     }
-    //     image = image.getBuffer("image/jpeg", img => img);
-    //     this.setState({
-    //       resizedPhoto: image
-    //     });
-    //     console.log(image);
-    //   }
-    // );
+  resizePhoto(photo) {
     let image = document.createElement("img");
     image.src = URL.createObjectURL(this.photoRef.current.files[0]);
+    let reader = new FileReader();
 
-    let canvas = document.createElement("canvas");
-    let ctx = canvas.getContext("2d");
-    ctx.drawImage(image, 0, 0);
+    reader.onloadend = e => {
+      let canvas = document.createElement("canvas");
+      let ctx = canvas.getContext("2d");
+      ctx.drawImage(image, 0, 0);
 
-    let imageWidth = image.width;
-    let imageHeight = image.height;
+      let imageWidth = image.width;
+      let imageHeight = image.height;
 
-    if (imageWidth > 1024 || imageHeight > 1024) {
-      if (imageWidth >= imageHeight) {
-        imageHeight *= 1024 / imageWidth;
-        imageWidth = 1024;
-      } else {
-        imageWidth *= 1024 / imageHeight;
-        imageHeight = 1024;
+      if (imageWidth > 1024 || imageHeight > 1024) {
+        if (imageWidth >= imageHeight) {
+          imageHeight *= 1024 / imageWidth;
+          imageWidth = 1024;
+        } else {
+          imageWidth *= 1024 / imageHeight;
+          imageHeight = 1024;
+        }
       }
-    }
 
-    canvas.width = imageWidth;
-    canvas.height = imageHeight;
+      canvas.width = imageWidth;
+      canvas.height = imageHeight;
 
-    ctx = canvas
-      .getContext("2d")
-      .drawImage(image, 0, 0, imageWidth, imageHeight);
+      ctx = canvas
+        .getContext("2d")
+        .drawImage(image, 0, 0, imageWidth, imageHeight);
 
-    let dataUrl = canvas.toDataURL("image/jpeg", 0.7);
+      let dataUrl = canvas.toDataURL("image/jpeg", 0.7);
 
-    console.log(canvas);
+      this.setState({
+        resizedPhoto: dataUrl
+      });
+    };
+
+    reader.readAsBinaryString(photo);
   }
 
   fileHandler(event) {
@@ -227,7 +209,7 @@ class Chat extends Component {
         isSendingPhoto: true,
         photoPreviewClasses: "photo-preview photo-preview-show"
       });
-      this.resizePhoto(event.target.files[0]);
+      this.resizePhoto(this.photoRef.current.files[0]);
     }
   }
 
@@ -242,7 +224,7 @@ class Chat extends Component {
     this.setState({
       isSendingPhoto: false,
       photoPreviewClasses: "photo-preview photo-preview-hide",
-      resizedPhoto: {}
+      resizedPhoto: ""
     });
     this.photoRef.current.value = "";
   }
