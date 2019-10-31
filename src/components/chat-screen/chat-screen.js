@@ -87,15 +87,19 @@ class Chat extends Component {
     if (this.textareaRef.current.value === "" && !this.state.isSendingPhoto) {
       return;
     }
+    let messageType = this.state.isSendingPhoto ? 1 : 0;
+    let postData = `senderId=${this.props.user}&chatId=${this.state.chatId}&content=${this.state.messageInput}&messageType=${messageType}`;
 
-    let sendingPhoto = this.state.isSendingPhoto ? 1 : 0;
+    if (messageType) {
+      postData += `&photo=${this.state.resizedPhoto}`;
+    }
 
     fetch(`${Links.api}/sendMessage`, {
       method: "POST",
       mode: "cors",
       credentials: "same-origin",
       headers: Headers,
-      body: `senderId=${this.props.user}&chatId=${this.state.chatId}&content=${this.state.messageInput}&messageType=${sendingPhoto}`
+      body: postData
     })
       .then(response => response.json())
       .then(json => {
@@ -107,6 +111,7 @@ class Chat extends Component {
           isSendingPhoto: false
         });
       });
+
     this.textareaRef.current.value = "";
     this.scrollToEnd(true);
   }
@@ -162,8 +167,8 @@ class Chat extends Component {
 
     reader.onloadend = e => {
       let canvas = document.createElement("canvas");
-      let ctx = canvas.getContext("2d");
-      ctx.drawImage(image, 0, 0);
+
+      //let ctx = canvas.getContext("2d").drawImage(image, 0, 0);
 
       let imageWidth = image.width;
       let imageHeight = image.height;
@@ -181,11 +186,10 @@ class Chat extends Component {
       canvas.width = imageWidth;
       canvas.height = imageHeight;
 
-      ctx = canvas
-        .getContext("2d")
-        .drawImage(image, 0, 0, imageWidth, imageHeight);
+      canvas.getContext("2d").drawImage(image, 0, 0, imageWidth, imageHeight);
 
-      let dataUrl = canvas.toDataURL("image/jpeg", 0.7);
+      let dataUrl = canvas.toDataURL("image/jpeg");
+      console.log(dataUrl);
 
       this.setState({
         resizedPhoto: dataUrl
