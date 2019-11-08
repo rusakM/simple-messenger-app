@@ -83,23 +83,28 @@ class Chat extends Component {
 
   sendMessage(event) {
     event.preventDefault();
-
+    let formData = new FormData();
     if (this.textareaRef.current.value === "" && !this.state.isSendingPhoto) {
       return;
     }
     let messageType = this.state.isSendingPhoto ? 1 : 0;
-    let postData = `senderId=${this.props.user}&chatId=${this.state.chatId}&content=${this.state.messageInput}&messageType=${messageType}`;
+    //let postData = `senderId=${this.props.user}&chatId=${this.state.chatId}&content=${this.state.messageInput}&messageType=${messageType}`;
+    formData.append("senderId", this.props.user);
+    formData.append("chatId", this.state.chatId);
+    formData.append("content", this.state.messageInput);
+    formData.append("messageType", messageType);
 
     if (messageType) {
-      postData += `&photo=${this.state.resizedPhoto}`;
+      formData.append("photo", this.state.resizedPhoto);
     }
 
     fetch(`${Links.api}/sendMessage`, {
       method: "POST",
       mode: "cors",
+      enctype: "multipart/form-data",
       credentials: "same-origin",
       headers: Headers,
-      body: postData
+      body: formData
     })
       .then(response => response.json())
       .then(json => {
