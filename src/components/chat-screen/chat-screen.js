@@ -6,11 +6,13 @@ import {
   faCamera,
   faTimesCircle
 } from "@fortawesome/free-solid-svg-icons";
+//import axios from "axios";
 import "./chat-screen.css";
 //import Avatar from './../../assets/avatar.png';
 import store from "./../../middlewares/store";
 import Links from "./../../middlewares/links";
 import Background from "./../../assets/grey_bg.png";
+import headers from "../../middlewares/headers";
 
 let Store = new store();
 
@@ -26,7 +28,7 @@ class Chat extends Component {
       scrollWithMount: true,
       fileAlertClasses: "alert-panel",
       photoPreviewClasses: "photo-preview",
-      resizedPhoto: ""
+      uploadingProgress: 0
     };
 
     this.textareaRef = createRef();
@@ -41,7 +43,6 @@ class Chat extends Component {
     this.fileHandler = this.fileHandler.bind(this);
     this.closeFileAlert = this.closeFileAlert.bind(this);
     this.closePhotoPreview = this.closePhotoPreview.bind(this);
-    this.resizePhoto = this.resizePhoto.bind(this);
   }
 
   componentWillMount() {
@@ -87,23 +88,47 @@ class Chat extends Component {
     if (this.textareaRef.current.value === "" && !this.state.isSendingPhoto) {
       return;
     }
+
     let messageType = this.state.isSendingPhoto ? 1 : 0;
-    //let postData = `senderId=${this.props.user}&chatId=${this.state.chatId}&content=${this.state.messageInput}&messageType=${messageType}`;
+
     formData.append("senderId", this.props.user);
     formData.append("chatId", this.state.chatId);
     formData.append("content", this.state.messageInput);
     formData.append("messageType", messageType);
 
     if (messageType) {
-      formData.append("photo", this.state.resizedPhoto);
+      formData.append("photo", this.photoRef.current.files[0]);
+    } else {
+      formData.append("photo", "");
     }
 
+    // axios
+    //   .request({
+    //     method: "post",
+    //     url: `/sendMessage`,
+    //     baseURL: `${Links.api}`,
+    //     data: formData,
+    //     headers: {
+    //       Origin: "http://localhost:3000",
+    //       Accept: "application/json"
+    //     },
+    //     withCredentials: true,
+    //     onUploadProgress: progress => {
+    //       this.setState({
+    //         uploadingProgress: Math.floor(
+    //           (progress.loaded / progress.total) * 100
+    //         )
+    //       });
+    //     }
+    //   })
     fetch(`${Links.api}/sendMessage`, {
-      method: "POST",
+      method: "post",
       mode: "cors",
-      enctype: "multipart/form-data",
       credentials: "same-origin",
-      headers: Headers,
+      headers: {
+        Origin: Links.origin,
+        Accept: headers.Accept
+      },
       body: formData
     })
       .then(response => response.json())
@@ -113,8 +138,11 @@ class Chat extends Component {
           chatData: Store[this.state.chatId],
           messagesList: Store.getSortedMessagesArray(this.state.chatId),
           messageInput: "",
-          isSendingPhoto: false
+          isSendingPhoto: false,
+          uploadingProgress: 0
         });
+        this.closePhotoPreview();
+        console.log(json);
       });
 
     this.textareaRef.current.value = "";
@@ -165,45 +193,6 @@ class Chat extends Component {
     this.photoRef.current.click();
   }
 
-  resizePhoto(photo) {
-    let image = document.createElement("img");
-    image.src = URL.createObjectURL(this.photoRef.current.files[0]);
-    let reader = new FileReader();
-
-    reader.onloadend = e => {
-      let canvas = document.createElement("canvas");
-
-      //let ctx = canvas.getContext("2d").drawImage(image, 0, 0);
-
-      let imageWidth = image.width;
-      let imageHeight = image.height;
-
-      if (imageWidth > 1024 || imageHeight > 1024) {
-        if (imageWidth >= imageHeight) {
-          imageHeight *= 1024 / imageWidth;
-          imageWidth = 1024;
-        } else {
-          imageWidth *= 1024 / imageHeight;
-          imageHeight = 1024;
-        }
-      }
-
-      canvas.width = imageWidth;
-      canvas.height = imageHeight;
-
-      canvas.getContext("2d").drawImage(image, 0, 0, imageWidth, imageHeight);
-
-      let dataUrl = canvas.toDataURL("image/jpeg");
-      console.log(dataUrl);
-
-      this.setState({
-        resizedPhoto: dataUrl
-      });
-    };
-
-    reader.readAsBinaryString(photo);
-  }
-
   fileHandler(event) {
     event.preventDefault();
     if (event.target.files.length === 0) {
@@ -218,7 +207,6 @@ class Chat extends Component {
         isSendingPhoto: true,
         photoPreviewClasses: "photo-preview photo-preview-show"
       });
-      this.resizePhoto(this.photoRef.current.files[0]);
     }
   }
 
@@ -232,8 +220,7 @@ class Chat extends Component {
   closePhotoPreview() {
     this.setState({
       isSendingPhoto: false,
-      photoPreviewClasses: "photo-preview photo-preview-hide",
-      resizedPhoto: ""
+      photoPreviewClasses: "photo-preview photo-preview-hide"
     });
     this.photoRef.current.value = "";
   }
