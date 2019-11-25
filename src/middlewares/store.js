@@ -1,90 +1,99 @@
 class Store {
-    insert(body) {
-        if(!this[body.chatId]) 
-            this[body.chatId] = {
-                name: body.name,
-                userPhoto: body.userPhoto,
-                userIsActive: body.userIsActive,
-                userId: body.userId,
-                messages: {}
-            };
-        this[body.chatId].lastMessageId = body.messageId;
-        this[body.chatId].messages[body.messageId] = {
-            messageContent: body.content,
-            messageType: body.messageType,
-            timestamp: body.timestamp,
-            senderId: body.senderId,
-            isRead: body.isRead
-        };
-        
+  insert(body) {
+    if (!this[body.chatId])
+      this[body.chatId] = {
+        name: body.name,
+        userPhoto: body.userPhoto,
+        userIsActive: body.userIsActive,
+        userId: body.userId,
+        messages: {}
+      };
+    this[body.chatId].lastMessageId = body.messageId;
+    this[body.chatId].messages[body.messageId] = {
+      messageContent: body.content,
+      messageType: body.messageType,
+      timestamp: body.timestamp,
+      senderId: body.senderId,
+      isRead: body.isRead
+    };
+  }
+
+  getSortedChatArray() {
+    let keys = Object.keys(this);
+    let arr = [];
+
+    for (let a = 0; a < keys.length; a++) {
+      arr.push({
+        id: keys[a],
+        message: this[keys[a]].lastMessageId
+      });
     }
 
-    getSortedChatArray() {
-        let keys = Object.keys(this);
-        let arr = [];
+    arr = arr.sort((a, b) => a.message < b.message).map(a => a.id);
+    return arr;
+  }
 
-        for(let a = 0; a < keys.length; a++) {
-            arr.push({
-                id: keys[a],
-                message: this[keys[a]].lastMessageId
-            });
-        }
-
-        arr = arr.sort((a, b) => a.message < b.message).map(a => a.id);
-        return arr;
+  deleteMessage(chat, message) {
+    delete this[chat].messages[message];
+    if (message === this[chat].lastMessageId) {
+      this[chat].lastMessageId = Object.keys(this[chat].messages).sort(
+        (a, b) => parseInt(a) < parseInt(b)
+      )[0];
     }
+  }
 
-    deleteMessage(chat, message) {
-        delete this[chat].messages[message];
-        if(message === this[chat].lastMessageId) {
-            this[chat].lastMessageId = Object.keys(this[chat].messages).sort((a, b) => parseInt(a) < parseInt(b))[0];
-        }
-    }
+  deleteChat(chat) {
+    delete this[chat];
+  }
 
-    deleteChat(chat) {
-        delete this[chat];
-    }
+  getLastMessageContent(chat) {
+    return this[chat].messages[this[chat].lastMessageId].messageContent;
+  }
 
-    getLastMessageContent(chat) {
-        return this[chat].messages[this[chat].lastMessageId].messageContent;
-    }
+  getLastMessageType(chat) {
+    return this[chat].messages[this[chat].lastMessageId].messageType;
+  }
 
-    getChatData(chat) {
-        chat = parseInt(chat);
-        console.log(chat);
-        return {
-            name: this[chat].name,
-            userPhoto: this[chat].userPhoto,
-            userId: this[chat].userId,
-            userIsActive: this[chat].userIsActive
-        }
-    }
+  getLastMessageSenderId(chat) {
+    return this[chat].messages[this[chat].lastMessageId].senderId;
+  }
 
-    getSortedMessagesArray(chat) {
-        let keys = Object.keys(this[chat].messages);
-        return keys.sort((a, b) => parseInt(a) > parseInt(b));
-    }
+  getChatData(chat) {
+    chat = parseInt(chat);
+    console.log(chat);
+    return {
+      name: this[chat].name,
+      userPhoto: this[chat].userPhoto,
+      userId: this[chat].userId,
+      userIsActive: this[chat].userIsActive
+    };
+  }
 
-    getChatsWithUsers() {
-        let keys = Object.keys(this);
-        return keys.map(a => {
-            return {
-                user: this[a].userId,
-                chat: a
-            };
-        });
-    }
+  getSortedMessagesArray(chat) {
+    let keys = Object.keys(this[chat].messages);
+    return keys.sort((a, b) => parseInt(a) > parseInt(b));
+  }
 
-    clearStore() {
-        let keys = Object.keys(this);
-        for(let a = 0; a < keys.length; a++) {
-            delete this[a];
-        }
-        console.log(Object.keys(this));
+  getChatsWithUsers() {
+    let keys = Object.keys(this);
+    return keys.map(a => {
+      return {
+        user: this[a].userId,
+        chat: a
+      };
+    });
+  }
+
+  clearStore() {
+    let keys = Object.keys(this);
+    for (let a = 0; a < keys.length; a++) {
+      delete this[a];
     }
+    console.log(Object.keys(this));
+  }
 }
 
-    /* 
+/* 
     body: {
         chatId: 1,
         name: "Mateusz Rusak",
