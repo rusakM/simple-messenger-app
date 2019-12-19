@@ -1,10 +1,11 @@
-import React, { Component, createRef } from "react";
+import React, { Component, createRef, useEffect } from "react";
 import Headers from "../../middlewares/headers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowLeft,
   faCamera,
-  faTimesCircle
+  faTimesCircle,
+  faChevronDown
 } from "@fortawesome/free-solid-svg-icons";
 //import axios from "axios";
 import "./chat-screen.css";
@@ -28,12 +29,15 @@ class Chat extends Component {
       scrollWithMount: true,
       fileAlertClasses: "alert-panel",
       photoPreviewClasses: "photo-preview",
-      uploadingProgress: 0
+      scrollDownClasses: "scroll-down-btn btn-hidden",
+      uploadingProgress: 0,
+      componentReadyToMount: true,
     };
 
     this.textareaRef = createRef();
     this.messagesContainerRef = createRef();
     this.photoRef = createRef();
+    this.lastMsgRef = createRef();
     this.closeChat = this.closeChat.bind(this);
     this.sendMessage = this.sendMessage.bind(this);
     this.messageInputHandler = this.messageInputHandler.bind(this);
@@ -43,6 +47,7 @@ class Chat extends Component {
     this.fileHandler = this.fileHandler.bind(this);
     this.closeFileAlert = this.closeFileAlert.bind(this);
     this.closePhotoPreview = this.closePhotoPreview.bind(this);
+    this.setComponentMount = this.setComponentMount.bind(this);
   }
 
   componentWillMount() {
@@ -102,25 +107,6 @@ class Chat extends Component {
       formData.append("photo", "");
     }
 
-    // axios
-    //   .request({
-    //     method: "post",
-    //     url: `/sendMessage`,
-    //     baseURL: `${Links.api}`,
-    //     data: formData,
-    //     headers: {
-    //       Origin: "http://localhost:3000",
-    //       Accept: "application/json"
-    //     },
-    //     withCredentials: true,
-    //     onUploadProgress: progress => {
-    //       this.setState({
-    //         uploadingProgress: Math.floor(
-    //           (progress.loaded / progress.total) * 100
-    //         )
-    //       });
-    //     }
-    //   })
     fetch(`${Links.api}/sendMessage`, {
       method: "post",
       mode: "cors",
@@ -153,41 +139,54 @@ class Chat extends Component {
     this.setState({
       messageInput: event.target.value
     });
+    console.log(this.lastMsgRef.current);
   }
 
   switchScrollWithMount() {
     let { current } = this.messagesContainerRef;
     let maxScroll = current.scrollHeight - current.offsetHeight;
-    if (current.scrollTop < maxScroll - 30) {
+    if (current.scrollTop < maxScroll - 50) {
       if (this.state.scrollWithMount) {
         this.setState({
-          scrollWithMount: false
+          scrollWithMount: false,
+          scrollDownClasses: "scroll-down-btn btn-visible"
         });
       }
     } else {
       if (this.state.scrollWithMount === false) {
         this.setState({
-          scrollWithMount: true
+          scrollWithMount: true,
+          scrollDownClasses: "scroll-down-btn btn-hidden"
         });
       }
     }
   }
 
-  scrollToEnd(sendingMessage = false) {
-    let { current } = this.messagesContainerRef;
-
-    if (!this.state.scrollWithMount && !sendingMessage) {
+  scrollToEnd(forceScroll = false) {
+    if (!this.state.scrollWithMount && !forceScroll) {
       return;
     }
-    if (current.scrollHeight > current.offsetHeight) {
-      this.messagesContainerRef.current.scrollTop =
-        current.scrollHeight - current.offsetHeight;
+    if(this.lastMsgRef.current !== null) {
+      this.lastMsgRef.current.scrollIntoView();
     }
   }
 
-  componentDidUpdate() {
+componentDidUpdate() {
+  this.scrollToEnd();
+  if(this.state.componentReadyToMount) {
+    this.scrollToEnd(true);
+    this.setComponentMount();
+  }
+  else {
     this.scrollToEnd();
   }
+}
+
+componentDidMount() {
+  setTimeout(() => {
+    this.scrollToEnd(true);
+  }, 2000);
+}
 
   photoBtn() {
     this.photoRef.current.click();
@@ -225,6 +224,14 @@ class Chat extends Component {
     this.photoRef.current.value = "";
   }
 
+  setComponentMount() {
+    if(this.state.componentReadyToMount) {
+      this.setState({
+        componentReadyToMount: false
+      })
+    }
+  }
+
   render() {
     let { chatId } = this.state;
     return (
@@ -245,6 +252,7 @@ class Chat extends Component {
             className="messages"
             onScroll={this.switchScrollWithMount}
             ref={this.messagesContainerRef}
+            
           >
             {this.state.messagesList.map((item, nr) => {
               let msg = Store[chatId].messages[item];
@@ -255,20 +263,41 @@ class Chat extends Component {
               } else {
                 classes += " msg-receiver";
               }
-
-              return (
-                <Message
-                  content={msg.messageContent}
-                  type={msg.messageType}
-                  timestamp={msg.timestamp}
-                  key={nr}
-                  classes={classes}
-                  messageid={item}
-                />
-              );
+              if(nr + 1 !== this.state.messagesList.length) {
+                return (
+                  <Message
+                    content={msg.messageContent}
+                    type={msg.messageType}
+                    timestamp={msg.timestamp}
+                    key={nr}
+                    classes={classes}
+                    messageid={item}
+                  />
+                );
+              }
+              else {
+                
+                return (
+                  <Message
+                    content={msg.messageContent}
+                    type={msg.messageType}
+                    timestamp={msg.timestamp}
+                    key={nr}
+                    classes={classes}
+                    messageid={item}
+                    reference={this.lastMsgRef}
+                    scroll={this.scrollToEnd}
+                    iscomponentmount={this.state.componentReadyToMount}
+                    setcomponentmount={this.setComponentMount}
+                  />
+                );
+              }
             })}
+            <ScrollDownBtn 
+              scroll={this.scrollToEnd} 
+              classes={this.state.scrollDownClasses}
+            />
           </div>
-
           <div className="messages-controls">
             <MessageInput
               changehandler={this.messageInputHandler}
@@ -326,6 +355,12 @@ const Message = props => {
   // else {
   //     strTime += timestamp.toDateString();
   // }
+  useEffect(() => {
+    if(props.iscomponentmount === true) {
+      props.scroll(true);
+    }
+  })
+
   let img = "";
   if (props.type === 1) {
     img = (
@@ -338,10 +373,18 @@ const Message = props => {
   }
 
   return (
-    <div className={props.classes + " msg-box"}>
+    <div className={props.classes + " msg-box"} ref={props.reference}>
       <div className="message-content">{props.content}</div>
       {img}
     </div>
+  );
+};
+
+const ScrollDownBtn = props => {
+  return (
+    <p className={props.classes} onClick={props.scroll}>
+      <FontAwesomeIcon icon={faChevronDown} />
+    </p>
   );
 };
 

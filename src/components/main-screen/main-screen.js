@@ -7,8 +7,10 @@ import {
   faUserCog,
   faTimes,
   faArrowRight,
-  faPlus
+  faPlus,
+  faCheckCircle
 } from "@fortawesome/free-solid-svg-icons";
+import { faCheckCircle as farCheckCircle } from "@fortawesome/free-regular-svg-icons";
 import Headers from "../../middlewares/headers";
 import Avatar from "./../../assets/avatar.png";
 import store from "./../../middlewares/store";
@@ -91,6 +93,7 @@ class App extends Component {
                 userid={Store[item].userId}
                 messagetype={Store.getLastMessageType(item)}
                 lastmessagesender={Store.getLastMessageSenderId(item)}
+                readstatus={Store.getReadStatus(item)}
               />
             ))
           });
@@ -319,8 +322,17 @@ const ChatListItem = props => {
         </p>
         <p className="chat-list-content">{content}</p>
       </div>
+      <ReadStatusIcon status={props.readstatus} />
     </li>
   );
+};
+
+const ReadStatusIcon = props => {
+  let icon = farCheckCircle;
+  if (props.status) {
+    icon = faCheckCircle;
+  }
+  return <FontAwesomeIcon icon={icon} className="read-status-icon" />;
 };
 
 const SearchItem = props => {

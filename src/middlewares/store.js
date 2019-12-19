@@ -58,6 +58,10 @@ class Store {
     return this[chat].messages[this[chat].lastMessageId].senderId;
   }
 
+  getReadStatus(chat) {
+    return this[chat].messages[this[chat].lastMessageId].isRead;
+  }
+
   getChatData(chat) {
     chat = parseInt(chat);
     console.log(chat);
