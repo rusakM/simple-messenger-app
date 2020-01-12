@@ -153,17 +153,34 @@ body {
   border-radius: 10px;
 }
 
+.msg-container {
+  display: flex;
+  width: 100%;
+  align-items: center;
+}
+
+.left {
+  flex-direction: row;
+}
+
+.right {
+  flex-direction: row-reverse;
+}
+
 .msg-sender {
-  align-self: flex-start;
   border: solid 2px #d7d7d7;
   background-color: #d7d7d7;
 }
 
 .msg-receiver {
-  align-self: flex-end;
   border: solid #04bf68 2px;
   background-color: #04bf68;
   color: #f2f2f2;
+}
+
+.msg-read-indicator {
+  color: #04bf68;
+  font-size: 14px;
 }
 
 .file-container {
@@ -220,11 +237,21 @@ body {
 }
 
 .btn-hidden {
-    display: none;
+  display: none;
 }
 
 .btn-visible {
-    display: block;
+  display: block;
+}
+
+.hidden {
+  display: none;
+}
+
+.date-string {
+  text-align: center;
+  font-size: 10px;
+  font-style: italic;
 }
 
 @media (min-width: 400px) {

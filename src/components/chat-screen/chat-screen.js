@@ -1,15 +1,15 @@
-import React, { Component, createRef, useEffect } from "react";
+import React, { Component, createRef, useState } from "react";
 import Headers from "../../middlewares/headers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowLeft,
   faCamera,
   faTimesCircle,
-  faChevronDown
+  faChevronDown,
+  faCheckCircle
 } from "@fortawesome/free-solid-svg-icons";
-//import axios from "axios";
+import { faCheckCircle as farCheckCircle } from "@fortawesome/free-regular-svg-icons";
 import "./chat-screen.css";
-//import Avatar from './../../assets/avatar.png';
 import store from "./../../middlewares/store";
 import Links from "./../../middlewares/links";
 import Background from "./../../assets/grey_bg.png";
@@ -30,8 +30,7 @@ class Chat extends Component {
       fileAlertClasses: "alert-panel",
       photoPreviewClasses: "photo-preview",
       scrollDownClasses: "scroll-down-btn btn-hidden",
-      uploadingProgress: 0,
-      componentReadyToMount: true,
+      uploadingProgress: 0
     };
 
     this.textareaRef = createRef();
@@ -47,7 +46,6 @@ class Chat extends Component {
     this.fileHandler = this.fileHandler.bind(this);
     this.closeFileAlert = this.closeFileAlert.bind(this);
     this.closePhotoPreview = this.closePhotoPreview.bind(this);
-    this.setComponentMount = this.setComponentMount.bind(this);
   }
 
   componentWillMount() {
@@ -81,6 +79,16 @@ class Chat extends Component {
             });
           });
       });
+
+    fetch(
+      `${Links.api}/setViewed/?userId=${this.props.user}&chatId=${this.state.chatId}`,
+      {
+        method: "get",
+        mode: "cors",
+        credentials: "same-origin",
+        headers: Headers
+      }
+    );
   }
 
   closeChat() {
@@ -166,27 +174,26 @@ class Chat extends Component {
     if (!this.state.scrollWithMount && !forceScroll) {
       return;
     }
-    if(this.lastMsgRef.current !== null) {
+    if (this.lastMsgRef.current !== null) {
       this.lastMsgRef.current.scrollIntoView();
     }
   }
 
-componentDidUpdate() {
-  this.scrollToEnd();
-  if(this.state.componentReadyToMount) {
-    this.scrollToEnd(true);
-    this.setComponentMount();
-  }
-  else {
+  componentDidUpdate() {
     this.scrollToEnd();
+    if (this.state.componentReadyToMount) {
+      this.scrollToEnd(true);
+      this.setComponentMount();
+    } else {
+      this.scrollToEnd();
+    }
   }
-}
 
-componentDidMount() {
-  setTimeout(() => {
-    this.scrollToEnd(true);
-  }, 2000);
-}
+  componentDidMount() {
+    setTimeout(() => {
+      this.scrollToEnd(true);
+    }, 2000);
+  }
 
   photoBtn() {
     this.photoRef.current.click();
@@ -224,14 +231,6 @@ componentDidMount() {
     this.photoRef.current.value = "";
   }
 
-  setComponentMount() {
-    if(this.state.componentReadyToMount) {
-      this.setState({
-        componentReadyToMount: false
-      })
-    }
-  }
-
   render() {
     let { chatId } = this.state;
     return (
@@ -252,49 +251,35 @@ componentDidMount() {
             className="messages"
             onScroll={this.switchScrollWithMount}
             ref={this.messagesContainerRef}
-            
           >
             {this.state.messagesList.map((item, nr) => {
               let msg = Store[chatId].messages[item];
-              let classes = "msg-box";
+              let classesBox = "msg-box";
+              let classesContainer = "msg-container";
 
               if (parseInt(msg.senderId) === parseInt(this.props.user)) {
-                classes += " msg-sender";
+                classesBox += " msg-sender";
+                classesContainer += " left";
               } else {
-                classes += " msg-receiver";
+                classesBox += " msg-receiver";
+                classesContainer += " right";
               }
-              if(nr + 1 !== this.state.messagesList.length) {
-                return (
-                  <Message
-                    content={msg.messageContent}
-                    type={msg.messageType}
-                    timestamp={msg.timestamp}
-                    key={nr}
-                    classes={classes}
-                    messageid={item}
-                  />
-                );
-              }
-              else {
-                
-                return (
-                  <Message
-                    content={msg.messageContent}
-                    type={msg.messageType}
-                    timestamp={msg.timestamp}
-                    key={nr}
-                    classes={classes}
-                    messageid={item}
-                    reference={this.lastMsgRef}
-                    scroll={this.scrollToEnd}
-                    iscomponentmount={this.state.componentReadyToMount}
-                    setcomponentmount={this.setComponentMount}
-                  />
-                );
-              }
+
+              return (
+                <Message
+                  content={msg.messageContent}
+                  type={msg.messageType}
+                  timestamp={msg.timestamp}
+                  key={nr}
+                  classesbox={classesBox}
+                  classescontainer={classesContainer}
+                  messageid={item}
+                  isread={msg.isRead}
+                />
+              );
             })}
-            <ScrollDownBtn 
-              scroll={this.scrollToEnd} 
+            <ScrollDownBtn
+              scroll={this.scrollToEnd}
               classes={this.state.scrollDownClasses}
             />
           </div>
@@ -345,23 +330,16 @@ const MessageInput = props => {
 };
 
 const Message = props => {
-  // let timestamp = new Date();
-  // timestamp = timestamp.setTime(parseInt(props.timestamp));
-  // let timeNow = new Date();
-  // let strTime = "";
-  // if(timestamp.toDateString() === timeNow.toDateString()) {
-  //     strTime += timestamp.getHours() + ":" + timestamp.getMinutes();
-  // }
-  // else {
-  //     strTime += timestamp.toDateString();
-  // }
-  useEffect(() => {
-    if(props.iscomponentmount === true) {
-      props.scroll(true);
-    }
-  })
-
+  const [isDateVisible, changeIsDateVisible] = useState(0);
+  const [dateClasses, changeDateClasses] = useState("date-string hidden");
   let img = "";
+  let date = new Date();
+  let timeNow = new Date();
+  let dateString = date.toLocaleTimeString();
+  date.setTime(props.timestamp);
+  if (timeNow.toLocaleDateString() !== date.toLocaleDateString()) {
+    dateString = date.toLocaleDateString();
+  }
   if (props.type === 1) {
     img = (
       <img
@@ -371,11 +349,35 @@ const Message = props => {
       />
     );
   }
+  let readIndicator;
+  if (props.isread === 1) {
+    readIndicator = <FontAwesomeIcon icon={faCheckCircle} />;
+  } else {
+    readIndicator = <FontAwesomeIcon icon={farCheckCircle} />;
+  }
+
+  function changeDateVisible() {
+    if (isDateVisible) {
+      changeIsDateVisible(0);
+      changeDateClasses("date-string hidden");
+    } else {
+      changeIsDateVisible(1);
+      changeDateClasses("date-string");
+      setTimeout(() => {
+        changeDateVisible(0);
+        changeDateClasses("date-string hidden");
+      }, 5000);
+    }
+  }
 
   return (
-    <div className={props.classes + " msg-box"} ref={props.reference}>
-      <div className="message-content">{props.content}</div>
-      {img}
+    <div className={props.classescontainer} onClick={changeDateVisible}>
+      <div className={props.classesbox + " msg-box"} ref={props.reference}>
+        <div className="message-content">{props.content}</div>
+        {img}
+        <small className={dateClasses}>{dateString}</small>
+      </div>
+      <div className="msg-read-indicator">{readIndicator}</div>
     </div>
   );
 };

@@ -303,8 +303,9 @@ body {
   word-break: break-all;
 }
 
-.read-status-icon {
-  align-self: flex-end;
+.read-indicator {
+  position: absolute;
+  left: 85%;
 }
 
 @media (min-width: 400px) {

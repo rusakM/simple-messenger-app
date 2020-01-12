@@ -74,7 +74,6 @@ class App extends Component {
           }
 
           let arr = Store.getSortedChatArray();
-          console.log(Store.getChatsWithUsers());
           this.setState({
             chats: arr,
             chatList: arr.map((item, nr) => (
@@ -294,8 +293,6 @@ const ChatListItem = props => {
   let link;
   if (img) {
     link = `${Links.cdn}/photo/${userid}`;
-    console.log(link);
-    console.log(userid);
   } else {
     link = Avatar;
   }
@@ -332,7 +329,11 @@ const ReadStatusIcon = props => {
   if (props.status) {
     icon = faCheckCircle;
   }
-  return <FontAwesomeIcon icon={icon} className="read-status-icon" />;
+  return (
+    <div className="read-indicator">
+      <FontAwesomeIcon icon={icon} className="read-status-icon" />
+    </div>
+  );
 };
 
 const SearchItem = props => {
