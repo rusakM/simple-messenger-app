@@ -30,7 +30,7 @@ class Store {
       });
     }
 
-    arr = arr.sort((a, b) => a.message < b.message).map(a => a.id);
+    arr = arr.sort((a, b) => b.message - a.message).map(a => a.id);
     return arr;
   }
 
@@ -38,7 +38,7 @@ class Store {
     delete this[chat].messages[message];
     if (message === this[chat].lastMessageId) {
       this[chat].lastMessageId = Object.keys(this[chat].messages).sort(
-        (a, b) => parseInt(a) < parseInt(b)
+        (a, b) => parseInt(a) - parseInt(b)
       )[0];
     }
   }
@@ -76,7 +76,7 @@ class Store {
 
   getSortedMessagesArray(chat) {
     let keys = Object.keys(this[chat].messages);
-    return keys.sort((a, b) => parseInt(a) > parseInt(b));
+    return keys.sort((a, b) => parseInt(a) - parseInt(b));
   }
 
   getChatsWithUsers() {

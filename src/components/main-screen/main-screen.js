@@ -27,7 +27,6 @@ class App extends Component {
         email: "",
         name: ""
       },
-      chatList: [],
       chats: [],
       settingsScreen: {
         enabled: false,
@@ -72,29 +71,11 @@ class App extends Component {
           for (let a = 0; a < json.length; a++) {
             Store.insert(json[a]);
           }
-
-          let arr = Store.getSortedChatArray();
+          const timeNow = new Date();
           this.setState({
-            chats: arr,
-            chatList: arr.map((item, nr) => (
-              <ChatListItem
-                open={this.openChat}
-                chatid={item}
-                img={Store[item].userPhoto}
-                name={Store[item].name}
-                activitystatus={
-                  Store[item].userIsActive === 1
-                    ? "chat-img chat-img-active"
-                    : "chat-img"
-                }
-                key={nr}
-                content={Store.getLastMessageContent(item)}
-                userid={Store[item].userId}
-                messagetype={Store.getLastMessageType(item)}
-                lastmessagesender={Store.getLastMessageSenderId(item)}
-                readstatus={Store.getReadStatus(item)}
-              />
-            ))
+            chats: Store.getSortedChatArray(),
+            appData: Store,
+            appTimestamp: `${timeNow.getTime()}`,
           });
         }
       });
@@ -226,7 +207,34 @@ class App extends Component {
           logout={this.props.logout}
         />
 
-        <ul className="chats-container">{this.state.chatList}</ul>
+        <ul className="chats-container">
+          {
+            this.state.chats.map((i, nr) => {
+              let item = this.state.appData[i];
+              const { appData } = this.state;
+
+
+              return (
+                <ChatListItem 
+                  open={this.openChat}
+                  chatid={i}
+                  img={item.userPhoto}
+                  name={item.name}
+                  content={appData.getLastMessageContent(i)}
+                  lastmessagesender={appData.getLastMessageSenderId(i)}
+                  readstatus={appData.getReadStatus(i)}
+                  key={nr}
+                  userid={item.userId}
+                  activitystatus={
+                    item.userIsActive === 1 
+                    ? "chat-img chat-img-active"
+                    : "chat-img"
+                  }
+                />
+              )
+            })
+          }
+        </ul>
       </div>
     );
   }
