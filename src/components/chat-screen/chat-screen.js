@@ -46,6 +46,8 @@ class Chat extends Component {
     this.fileHandler = this.fileHandler.bind(this);
     this.closeFileAlert = this.closeFileAlert.bind(this);
     this.closePhotoPreview = this.closePhotoPreview.bind(this);
+    this.checkingUpdates = this.checkingUpdates.bind(this);
+    this.checkingUpdatesInterval = setInterval(this.checkingUpdates, 3500);
   }
 
   componentWillMount() {
@@ -89,6 +91,10 @@ class Chat extends Component {
         headers: Headers
       }
     );
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.checkingUpdatesInterval);
   }
 
   closeChat() {
@@ -229,6 +235,68 @@ class Chat extends Component {
       photoPreviewClasses: "photo-preview photo-preview-hide"
     });
     this.photoRef.current.value = "";
+  }
+
+  checkingUpdates() {
+    const lastMessageId = this.state.messagesList[this.state.messagesList.length - 1];
+    fetch(`${Links.api}/checkNewMessages/?chatId=${this.state.chatId}&messageId=${lastMessageId}`, {
+      method: 'get',
+      mode: 'cors',
+      credentials: 'same-origin',
+      headers: Headers
+    }).then(response => response.json())
+    .then(json => {
+      let lastReadMessage = Store.getLastReadMessage(this.state.chatId);
+      if(json.lastRead !== 0 && json.lastRead > lastReadMessage) {
+        Store.changeReadMessagesStatus(this.state.chatId, json.lastRead);
+        if(json.count === 0) {
+          this.setState({
+            chatData: Store[this.state.chatId],
+            messagesList: Store.getSortedMessagesArray(this.state.chatId)
+          });
+          return;
+        }
+      }
+      if(json.count > 0) {
+        this.getNewMessages();
+      }
+    });
+  }
+
+  getNewMessages() {
+    const lastMessageId = this.state.messagesList[this.state.messagesList.length - 1];
+    const { chatId } = this.state;
+    fetch(`${Links.api}/getNewMessages/?messageId=${lastMessageId}&chatId=${chatId}`, {
+      method: 'get',
+      mode: 'cors',
+      credentials: 'same-origin',
+      headers: Headers
+    })
+      .then(response => response.json())
+      .then(json => {
+        let isNeedToSetViewed = false;
+        if(json.length > 0) {
+          for(let a = 0; a < json.length; a++) {
+            Store.insert(json[a]);
+            if(json[a].senderId !== parseInt(this.props.user)) {
+              isNeedToSetViewed = true;
+            }
+          }
+          this.setState({
+            chatData: Store[this.state.chatId],
+            messagesList: Store.getSortedMessagesArray(this.state.chatId)
+          });
+          if(isNeedToSetViewed) {
+            fetch(`${Links.api}/setViewed/?userId=${this.props.user}&chatId=${chatId}`, {
+              method: 'get',
+              mode: 'cors',
+              credentials: 'same-origin',
+              headers: Headers
+            });
+          }
+        }
+      });
+
   }
 
   render() {

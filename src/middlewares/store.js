@@ -6,13 +6,14 @@ class Store {
         userPhoto: body.userPhoto,
         userIsActive: body.userIsActive,
         userId: body.userId,
-        messages: {}
+        messages: {},
+        timestamp: body.chatTimestamp
       };
     this[body.chatId].lastMessageId = body.messageId;
     this[body.chatId].messages[body.messageId] = {
       messageContent: body.content,
       messageType: body.messageType,
-      timestamp: body.timestamp,
+      timestamp: body.msgTimestamp,
       senderId: body.senderId,
       isRead: body.isRead
     };
@@ -93,7 +94,31 @@ class Store {
     for (let a = 0; a < keys.length; a++) {
       delete this[a];
     }
-    console.log(Object.keys(this));
+  }
+
+  getLastReadMessage(chatId) {
+    let keys = this.getSortedMessagesArray(chatId);
+    let lastRead = 0;
+    for(let a = 0; a < keys.length; a++) {
+      if(this[chatId].messages[keys[a]].isRead === 1) {
+        lastRead = keys[a];
+      }
+      else {
+        break;
+      }
+    }
+    return parseInt(lastRead);
+  }
+
+  changeReadMessagesStatus(chatId, lastMessage = 0) {
+    let keys = this.getSortedMessagesArray(chatId);
+    let lastIndex = keys.indexOf(lastMessage);
+    if(lastIndex === -1) {
+      lastIndex = keys.length - 1;
+    }
+    for(let a = 0; a <= lastIndex; a++) {
+      this[chatId].messages[keys[a]].isRead = 1;
+    }
   }
 }
 
