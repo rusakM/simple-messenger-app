@@ -45,6 +45,10 @@ class App extends Component {
     this.searchHandler = this.searchHandler.bind(this);
     this.closeSearchScreen = this.closeSearchScreen.bind(this);
     this.openChat = this.openChat.bind(this);
+    this.checkingUpdates = this.checkingUpdates.bind(this);
+    this.fetchUpdates = this.fetchUpdates.bind(this);
+    this.logout = this.logout.bind(this);
+    this.checkingUpdatesInterval = setInterval(this.checkingUpdates, 5000);
   }
 
   componentWillMount() {
@@ -79,6 +83,54 @@ class App extends Component {
           });
         }
       });
+  }
+
+  checkingUpdates() {
+    fetch(`${Links.api}/checkUpdates/?userId=${this.props.user}&timestamp=${this.state.appTimestamp}`, {
+      headers: Headers,
+      mode: 'cors',
+      credentials: 'same-origin',
+      method: 'get',
+    })
+    .then(response => response.json())
+    .then(json => {
+      if(json.updates > 0) {
+        this.fetchUpdates();
+      }
+    });
+  }
+
+  fetchUpdates() {
+    fetch(`${Links.api}/getChats`, {
+      method: 'post',
+      mode: 'cors',
+      credentials:'same-origin',
+      headers: Headers,
+      body: `user=${this.props.user}`
+    })
+      .then(response => response.json())
+      .then(json => {
+        if (json.length > 0) {
+          for (let a = 0; a < json.length; a++) {
+            Store.insert(json[a]);
+          }
+          const timeNow = new Date();
+          this.setState({
+            chats: Store.getSortedChatArray(),
+            appData: Store,
+            appTimestamp: `${timeNow.getTime()}`,
+          });
+        }
+      });
+  }
+
+  logout() {
+    clearInterval(this.checkingUpdatesInterval);
+    this.props.logout();
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.checkingUpdatesInterval);
   }
 
   goToSettings() {
@@ -204,7 +256,7 @@ class App extends Component {
         <SettingsScreen
           screen={this.state.settingsScreen}
           settings={this.goToSettings}
-          logout={this.props.logout}
+          logout={this.logout}
         />
 
         <ul className="chats-container">
