@@ -245,13 +245,43 @@ body {
 }
 
 .hidden {
-  display: none;
+  display: none !important;
 }
 
 .date-string {
   text-align: center;
   font-size: 10px;
   font-style: italic;
+}
+
+.chat-bubble {
+  display: flex;
+  position: fixed;
+  left: 0px;
+  border-bottom: #04bf68 3px solid;
+  padding: 5px;
+  top: 0px;
+  height: 70px;
+  z-index: 5;
+  width: 100%;
+  background-color: #d7d7d7;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.notify-content {
+  padding-left: 5px;
+}
+
+.notify-image {
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+.notify-img {
+  width: 50px;
+  height: 50px;
+  border-radius: 25px;
 }
 
 @media (min-width: 400px) {
@@ -264,6 +294,10 @@ body {
 
   .photo-preview {
     right: 11%;
+  }
+
+  .chat-bubble {
+    justify-content: space-around;
   }
 }
 
@@ -285,6 +319,20 @@ body {
   .photo-preview {
     right: 25%;
   }
+
+  .chat-bubble {
+    width: 20%;
+    bottom: 20px;
+    right: 5px;
+    top: auto;
+    left: auto;
+    border: 2px solid #04bf68;
+    border-radius: 15px;
+  }
+
+  .notify-content {
+    font-size: 14px;
+  }
 }
 
 @media (min-width: 1024px) {
@@ -294,5 +342,9 @@ body {
 
   .photo-preview {
     right: 30%;
+  }
+
+  .chat-bubble {
+    width: 25%;
   }
 }

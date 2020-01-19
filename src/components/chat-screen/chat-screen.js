@@ -30,7 +30,9 @@ class Chat extends Component {
       fileAlertClasses: "alert-panel",
       photoPreviewClasses: "photo-preview",
       scrollDownClasses: "scroll-down-btn btn-hidden",
-      uploadingProgress: 0
+      uploadingProgress: 0,
+      timeNow: new Date().getTime(),
+      bubbleClasses: "chat-bubble",
     };
 
     this.textareaRef = createRef();
@@ -48,6 +50,7 @@ class Chat extends Component {
     this.closePhotoPreview = this.closePhotoPreview.bind(this);
     this.checkingUpdates = this.checkingUpdates.bind(this);
     this.checkingUpdatesInterval = setInterval(this.checkingUpdates, 3500);
+    this.closeNotification = this.closeNotification.bind(this);
   }
 
   componentWillMount() {
@@ -296,7 +299,13 @@ class Chat extends Component {
           }
         }
       });
+  }
 
+  closeNotification(event) {
+    event.stopPropagation();
+    this.setState({
+      bubbleClasses: "hidden chat-bubble"
+    });
   }
 
   render() {
@@ -379,6 +388,14 @@ class Chat extends Component {
             close={this.closePhotoPreview}
           />
         </div>
+        <ChatBubble
+          classes={this.state.bubbleClasses}
+          content="Hej :D"
+          chatid="6"
+          name="Julia Rusak"
+          userid="7"
+          close={this.closeNotification}
+        />
       </div>
     );
   }
@@ -493,5 +510,34 @@ const PhotoPreview = props => {
     </aside>
   );
 };
+
+const ChatBubble = props => {
+  const { classes, content, chatid, name, userid, close } = props;
+  const imgLocation = `${Links.cdn}/photo/${userid}`;
+  const chatLocation = `${Links.origin}/chat/${chatid}`;
+  const linkRef = createRef();
+
+  function open() {
+    linkRef.current.click();
+  }
+
+  return (
+    <aside className={classes} onClick={open}>
+      <a href={chatLocation} ref={linkRef} hidden></a>
+      <div className="notify-content">
+        <p><b>{name}</b></p>
+        <p>
+          {content}
+        </p>
+      </div>
+      <div className="notify-image">
+        <p className="notify-close-btn" onClick={(event) => close(event)}>
+          <FontAwesomeIcon icon={faTimesCircle} />
+        </p>
+        <img src={imgLocation} alt="Notification" className="notify-img"/>
+      </div>
+    </aside>
+  )
+}
 
 export default Chat;
