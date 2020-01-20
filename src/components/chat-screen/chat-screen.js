@@ -6,7 +6,8 @@ import {
   faCamera,
   faTimesCircle,
   faChevronDown,
-  faCheckCircle
+  faCheckCircle,
+  faTimes
 } from "@fortawesome/free-solid-svg-icons";
 import { faCheckCircle as farCheckCircle } from "@fortawesome/free-regular-svg-icons";
 import "./chat-screen.css";
@@ -32,7 +33,13 @@ class Chat extends Component {
       scrollDownClasses: "scroll-down-btn btn-hidden",
       uploadingProgress: 0,
       timeNow: new Date().getTime(),
-      bubbleClasses: "chat-bubble",
+      bubbleClasses: "chat-bubble hidden",
+      notification: {
+        chatId: parseInt(this.props.history.location.pathname.slice(6)),
+        userId: this.props.user,
+        content: "",
+        name: ""
+      }
     };
 
     this.textareaRef = createRef();
@@ -51,6 +58,12 @@ class Chat extends Component {
     this.checkingUpdates = this.checkingUpdates.bind(this);
     this.checkingUpdatesInterval = setInterval(this.checkingUpdates, 3500);
     this.closeNotification = this.closeNotification.bind(this);
+    this.checkingNotifications = this.checkingNotifications.bind(this);
+    this.checkingNotificationsInterval = setInterval(
+      this.checkingNotifications,
+      7000
+    );
+    this.getNotifications = this.getNotifications.bind(this);
   }
 
   componentWillMount() {
@@ -98,6 +111,7 @@ class Chat extends Component {
 
   componentWillUnmount() {
     clearInterval(this.checkingUpdatesInterval);
+    clearInterval(this.checkingNotificationsInterval);
   }
 
   closeChat() {
@@ -241,47 +255,98 @@ class Chat extends Component {
   }
 
   checkingUpdates() {
-    const lastMessageId = this.state.messagesList[this.state.messagesList.length - 1];
-    fetch(`${Links.api}/checkNewMessages/?chatId=${this.state.chatId}&messageId=${lastMessageId}`, {
-      method: 'get',
-      mode: 'cors',
-      credentials: 'same-origin',
-      headers: Headers
-    }).then(response => response.json())
-    .then(json => {
-      let lastReadMessage = Store.getLastReadMessage(this.state.chatId);
-      if(json.lastRead !== 0 && json.lastRead > lastReadMessage) {
-        Store.changeReadMessagesStatus(this.state.chatId, json.lastRead);
-        if(json.count === 0) {
-          this.setState({
-            chatData: Store[this.state.chatId],
-            messagesList: Store.getSortedMessagesArray(this.state.chatId)
-          });
-          return;
+    const lastMessageId = this.state.messagesList[
+      this.state.messagesList.length - 1
+    ];
+    fetch(
+      `${Links.api}/checkNewMessages/?chatId=${this.state.chatId}&messageId=${lastMessageId}`,
+      {
+        method: "get",
+        mode: "cors",
+        credentials: "same-origin",
+        headers: Headers
+      }
+    )
+      .then(response => response.json())
+      .then(json => {
+        let lastReadMessage = Store.getLastReadMessage(this.state.chatId);
+        if (json.lastRead !== 0 && json.lastRead > lastReadMessage) {
+          Store.changeReadMessagesStatus(this.state.chatId, json.lastRead);
+          if (json.count === 0) {
+            this.setState({
+              chatData: Store[this.state.chatId],
+              messagesList: Store.getSortedMessagesArray(this.state.chatId)
+            });
+            return;
+          }
         }
+        if (json.count > 0) {
+          this.getNewMessages();
+        }
+      });
+  }
+
+  checkingNotifications() {
+    fetch(
+      `${Links.api}/checkNotifications/?userId=${this.props.user}&timestamp=${this.state.timeNow}`,
+      {
+        method: "get",
+        mode: "cors",
+        credentials: "same-origin",
+        headers: Headers
       }
-      if(json.count > 0) {
-        this.getNewMessages();
+    )
+      .then(response => response.json())
+      .then(json => {
+        if (json.count !== 0) {
+          this.getNotifications();
+        }
+      });
+  }
+
+  getNotifications() {
+    fetch(
+      `${Links.api}/getNotification/?userId=${this.props.user}&timestamp=${this.state.timeNow}`,
+      {
+        method: "get",
+        mode: "cors",
+        credentials: "same-origin",
+        headers: Headers
       }
-    });
+    )
+      .then(response => response.json())
+      .then(json => {
+        if (json.chatId) {
+          this.setState({
+            notification: json,
+            timeNow: new Date().getTime(),
+            bubbleClasses: "chat-bubble"
+          });
+        }
+      });
   }
 
   getNewMessages() {
-    const lastMessageId = this.state.messagesList[this.state.messagesList.length - 1];
+    const lastMessageId = this.state.messagesList[
+      this.state.messagesList.length - 1
+    ];
     const { chatId } = this.state;
-    fetch(`${Links.api}/getNewMessages/?messageId=${lastMessageId}&chatId=${chatId}`, {
-      method: 'get',
-      mode: 'cors',
-      credentials: 'same-origin',
-      headers: Headers
-    })
+    fetch(
+      `${Links.api}/getNewMessages/?messageId=${lastMessageId}&chatId=${chatId}`,
+      {
+        method: "get",
+        mode: "cors",
+        credentials: "same-origin",
+        headers: Headers
+      }
+    )
       .then(response => response.json())
       .then(json => {
         let isNeedToSetViewed = false;
-        if(json.length > 0) {
-          for(let a = 0; a < json.length; a++) {
+        if (json.length > 0) {
+          for (let a = 0; a < json.length; a++) {
             Store.insert(json[a]);
-            if(json[a].senderId !== parseInt(this.props.user)) {
+            if (json[a].senderId !== parseInt(this.props.user)) {
               isNeedToSetViewed = true;
             }
           }
@@ -289,13 +354,16 @@ class Chat extends Component {
             chatData: Store[this.state.chatId],
             messagesList: Store.getSortedMessagesArray(this.state.chatId)
           });
-          if(isNeedToSetViewed) {
-            fetch(`${Links.api}/setViewed/?userId=${this.props.user}&chatId=${chatId}`, {
-              method: 'get',
-              mode: 'cors',
-              credentials: 'same-origin',
-              headers: Headers
-            });
+          if (isNeedToSetViewed) {
+            fetch(
+              `${Links.api}/setViewed/?userId=${this.props.user}&chatId=${chatId}`,
+              {
+                method: "get",
+                mode: "cors",
+                credentials: "same-origin",
+                headers: Headers
+              }
+            );
           }
         }
       });
@@ -390,10 +458,10 @@ class Chat extends Component {
         </div>
         <ChatBubble
           classes={this.state.bubbleClasses}
-          content="Hej :D"
-          chatid="6"
-          name="Julia Rusak"
-          userid="7"
+          content={this.state.notification.content}
+          chatid={this.state.notification.chatId}
+          name={this.state.notification.name}
+          userid={this.state.notification.userId}
           close={this.closeNotification}
         />
       </div>
@@ -525,19 +593,19 @@ const ChatBubble = props => {
     <aside className={classes} onClick={open}>
       <a href={chatLocation} ref={linkRef} hidden></a>
       <div className="notify-content">
-        <p><b>{name}</b></p>
         <p>
-          {content}
+          <b>{name}</b>
         </p>
+        <p>{content}</p>
       </div>
       <div className="notify-image">
-        <p className="notify-close-btn" onClick={(event) => close(event)}>
-          <FontAwesomeIcon icon={faTimesCircle} />
+        <p className="notify-close-btn" onClick={event => close(event)}>
+          <FontAwesomeIcon icon={faTimes} />
         </p>
-        <img src={imgLocation} alt="Notification" className="notify-img"/>
+        <img src={imgLocation} alt="Notification" className="notify-img" />
       </div>
     </aside>
-  )
-}
+  );
+};
 
 export default Chat;
