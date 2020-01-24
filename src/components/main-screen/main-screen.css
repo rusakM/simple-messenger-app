@@ -11,6 +11,7 @@ body {
   position: relative;
   display: flex;
   flex-direction: column;
+  height: 100vh;
 }
 
 .main-header {
@@ -248,11 +249,10 @@ body {
 
 .chats-container {
   list-style-type: none;
-  position: fixed;
+  position: absolute;
   flex-direction: column;
   justify-content: baseline;
   display: flex;
-  height: 100%;
   top: 51px;
   padding: 50px 0 30px 0;
   width: 100%;
@@ -260,6 +260,7 @@ body {
   align-self: center;
   margin: 0;
   background-color: white;
+  bottom: 0px;
 }
 
 .chat-list-item {
