@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import './login-screen.css';
 import Logger from '../../middlewares/logger';
-import Headers from '../../middlewares/headers';
-import Links from '../../middlewares/links'
+import { headers, links } from './../../middlewares/config';
 
 
 
@@ -75,11 +74,11 @@ class LoginScreen extends Component {
         event.preventDefault();
         let {email, password} = this.state.loginForm;
 
-        fetch(`${Links.api}/login`, {
+        fetch(`${links.api}/login`, {
             method: 'POST',
             mode: "cors",
             credentials: "same-origin",
-            headers: Headers,
+            headers,
             body: `email=${email}&password=${password}`
         }).then(response => response.json())
         .then(json => {
@@ -148,11 +147,11 @@ class LoginScreen extends Component {
             });
         }
         let {email, password, name, surname} = this.state.registerForm;
-        fetch(`${Links.api}/register`, {
+        fetch(`${links.api}/register`, {
             method: 'POST',
             mode: 'cors',
             credentials: 'same-origin',
-            headers: Headers,
+            headers,
             body: `email=${email}&password=${password.first}&name=${name}&surname=${surname}`
         }).then(response => response.json())
         .then(json => {

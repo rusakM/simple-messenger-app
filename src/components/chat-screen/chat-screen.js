@@ -1,5 +1,4 @@
 import React, { Component, createRef, useState } from "react";
-import Headers from "../../middlewares/headers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowLeft,
@@ -12,9 +11,8 @@ import {
 import { faCheckCircle as farCheckCircle } from "@fortawesome/free-regular-svg-icons";
 import "./chat-screen.css";
 import store from "./../../middlewares/store";
-import Links from "./../../middlewares/links";
+import { links, headers} from "./../../middlewares/config";
 import Background from "./../../assets/grey_bg.png";
-import headers from "../../middlewares/headers";
 
 let Store = new store();
 
@@ -71,11 +69,11 @@ class Chat extends Component {
       method: "POST",
       mode: "cors",
       credentials: "same-origin",
-      headers: Headers,
+      headers,
       body: `user=${this.props.user}&chat=${this.state.chatId}`
     };
 
-    fetch(`${Links.api}/getChats`, reqData)
+    fetch(`${links.api}/getChats`, reqData)
       .then(response => response.json())
       .then(json => {
         if (json.length > 0) {
@@ -85,7 +83,7 @@ class Chat extends Component {
         }
       })
       .then(() => {
-        fetch(`${Links.api}/getMessages`, reqData)
+        fetch(`${links.api}/getMessages`, reqData)
           .then(response => response.json())
           .then(json => {
             for (let a = 0; a < json.length; a++) {
@@ -99,12 +97,12 @@ class Chat extends Component {
       });
 
     fetch(
-      `${Links.api}/setViewed/?userId=${this.props.user}&chatId=${this.state.chatId}`,
+      `${links.api}/setViewed/?userId=${this.props.user}&chatId=${this.state.chatId}`,
       {
         method: "get",
         mode: "cors",
         credentials: "same-origin",
-        headers: Headers
+        headers
       }
     );
   }
@@ -138,12 +136,12 @@ class Chat extends Component {
       formData.append("photo", "");
     }
 
-    fetch(`${Links.api}/sendMessage`, {
+    fetch(`${links.api}/sendMessage`, {
       method: "post",
       mode: "cors",
       credentials: "same-origin",
       headers: {
-        Origin: Links.origin,
+        Origin: links.origin,
         Accept: headers.Accept
       },
       body: formData
@@ -259,12 +257,12 @@ class Chat extends Component {
       this.state.messagesList.length - 1
     ];
     fetch(
-      `${Links.api}/checkNewMessages/?chatId=${this.state.chatId}&messageId=${lastMessageId}`,
+      `${links.api}/checkNewMessages/?chatId=${this.state.chatId}&messageId=${lastMessageId}`,
       {
         method: "get",
         mode: "cors",
         credentials: "same-origin",
-        headers: Headers
+        headers
       }
     )
       .then(response => response.json())
@@ -288,12 +286,12 @@ class Chat extends Component {
 
   checkingNotifications() {
     fetch(
-      `${Links.api}/checkNotifications/?userId=${this.props.user}&timestamp=${this.state.timeNow}`,
+      `${links.api}/checkNotifications/?userId=${this.props.user}&timestamp=${this.state.timeNow}`,
       {
         method: "get",
         mode: "cors",
         credentials: "same-origin",
-        headers: Headers
+        headers
       }
     )
       .then(response => response.json())
@@ -306,12 +304,12 @@ class Chat extends Component {
 
   getNotifications() {
     fetch(
-      `${Links.api}/getNotification/?userId=${this.props.user}&timestamp=${this.state.timeNow}`,
+      `${links.api}/getNotification/?userId=${this.props.user}&timestamp=${this.state.timeNow}`,
       {
         method: "get",
         mode: "cors",
         credentials: "same-origin",
-        headers: Headers
+        headers
       }
     )
       .then(response => response.json())
@@ -332,12 +330,12 @@ class Chat extends Component {
     ];
     const { chatId } = this.state;
     fetch(
-      `${Links.api}/getNewMessages/?messageId=${lastMessageId}&chatId=${chatId}`,
+      `${links.api}/getNewMessages/?messageId=${lastMessageId}&chatId=${chatId}`,
       {
         method: "get",
         mode: "cors",
         credentials: "same-origin",
-        headers: Headers
+        headers
       }
     )
       .then(response => response.json())
@@ -356,12 +354,12 @@ class Chat extends Component {
           });
           if (isNeedToSetViewed) {
             fetch(
-              `${Links.api}/setViewed/?userId=${this.props.user}&chatId=${chatId}`,
+              `${links.api}/setViewed/?userId=${this.props.user}&chatId=${chatId}`,
               {
                 method: "get",
                 mode: "cors",
                 credentials: "same-origin",
-                headers: Headers
+                headers
               }
             );
           }
@@ -385,7 +383,7 @@ class Chat extends Component {
             <FontAwesomeIcon icon={faArrowLeft} />
           </button>
           <img
-            src={`${Links.cdn}/photo/${this.state.chatData.userId}`}
+            src={`${links.cdn}/photo/${this.state.chatData.userId}`}
             alt={this.state.chatData.name}
             className="chat-photo"
           />
@@ -496,7 +494,7 @@ const Message = props => {
   if (props.type === 1) {
     img = (
       <img
-        src={`${Links.cdn}/message/${props.messageid}`}
+        src={`${links.cdn}/message/${props.messageid}`}
         className="message-img"
         alt={`messageid: ${props.messageid}`}
       />
@@ -581,8 +579,8 @@ const PhotoPreview = props => {
 
 const ChatBubble = props => {
   const { classes, content, chatid, name, userid, close } = props;
-  const imgLocation = `${Links.cdn}/photo/${userid}`;
-  const chatLocation = `${Links.origin}/chat/${chatid}`;
+  const imgLocation = `${links.cdn}/photo/${userid}`;
+  const chatLocation = `${links.origin}/chat/${chatid}`;
   const linkRef = createRef();
 
   function open() {

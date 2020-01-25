@@ -6,8 +6,7 @@ import { Route, Switch, Redirect, withRouter} from 'react-router-dom';
 import LoginScreen from './components/login-screen/login-screen';
 import MainScreen from './components/main-screen/main-screen';
 import ChatScreen from './components/chat-screen/chat-screen';
-import Links from './middlewares/links';
-import Headers from './middlewares/headers';
+import { links, headers } from './middlewares/config';
 
 
 class App extends Component {
@@ -51,11 +50,11 @@ class App extends Component {
             user: false
         });
         this.cookiesRemover();
-        fetch(`${Links.api}/logout`, {
+        fetch(`${links.api}/logout`, {
             method: 'POST',
             mode: "cors",
             credentials: "same-origin",
-            headers: Headers,
+            headers,
             body: `user=${this.state.user}`
         }).then(response => true);
         this.props.history.push('/login');

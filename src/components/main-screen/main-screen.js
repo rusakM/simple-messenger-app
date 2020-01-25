@@ -11,10 +11,9 @@ import {
   faCheckCircle
 } from "@fortawesome/free-solid-svg-icons";
 import { faCheckCircle as farCheckCircle } from "@fortawesome/free-regular-svg-icons";
-import Headers from "../../middlewares/headers";
 import Avatar from "./../../assets/avatar.png";
 import store from "./../../middlewares/store";
-import Links from "./../../middlewares/links";
+import { links, headers } from "./../../middlewares/config";
 
 let Store = new store();
 
@@ -60,15 +59,15 @@ class App extends Component {
       method: "POST",
       mode: "cors",
       credentials: "same-origin",
-      headers: Headers,
+      headers,
       body: `user=${this.props.user}`
     };
 
-    fetch(`${Links.api}/getUserData`, reqData)
+    fetch(`${links.api}/getUserData`, reqData)
       .then(response => response.json())
       .then(json => this.setState({ userData: json }));
 
-    fetch(`${Links.api}/getChats`, reqData)
+    fetch(`${links.api}/getChats`, reqData)
       .then(response => response.json())
       .then(json => {
         if (json.length > 0) {
@@ -86,8 +85,8 @@ class App extends Component {
   }
 
   checkingUpdates() {
-    fetch(`${Links.api}/checkUpdates/?userId=${this.props.user}&timestamp=${this.state.appTimestamp}`, {
-      headers: Headers,
+    fetch(`${links.api}/checkUpdates/?userId=${this.props.user}&timestamp=${this.state.appTimestamp}`, {
+      headers,
       mode: 'cors',
       credentials: 'same-origin',
       method: 'get',
@@ -101,11 +100,11 @@ class App extends Component {
   }
 
   fetchUpdates() {
-    fetch(`${Links.api}/getChats`, {
+    fetch(`${links.api}/getChats`, {
       method: 'post',
       mode: 'cors',
       credentials:'same-origin',
-      headers: Headers,
+      headers,
       body: `user=${this.props.user}`
     })
       .then(response => response.json())
@@ -148,11 +147,11 @@ class App extends Component {
       });
 
       if (event.target.value.length > 2) {
-        fetch(`${Links.api}/search`, {
+        fetch(`${links.api}/search`, {
           method: "POST",
           mode: "cors",
           credentials: "same-origin",
-          headers: Headers,
+          headers,
           body: `user=${this.props.user}&query=${event.target.value}`
         })
           .then(response => response.json())
@@ -223,7 +222,7 @@ class App extends Component {
             <img
               src={
                 this.state.userData.photo
-                  ? `${Links.cdn}/photo/${this.props.user}`
+                  ? `${links.cdn}/photo/${this.props.user}`
                   : Avatar
               }
               className="user-photo"
@@ -264,8 +263,6 @@ class App extends Component {
             this.state.chats.map((i, nr) => {
               let item = this.state.appData[i];
               const { appData } = this.state;
-
-
               return (
                 <ChatListItem 
                   open={this.openChat}
@@ -352,7 +349,7 @@ const ChatListItem = props => {
   } = props;
   let link;
   if (img) {
-    link = `${Links.cdn}/photo/${userid}`;
+    link = `${links.cdn}/photo/${userid}`;
   } else {
     link = Avatar;
   }
@@ -406,7 +403,7 @@ const SearchItem = props => {
   return (
     <li className="search-item">
       <img
-        src={data.photo ? `${Links.cdn}/photo/${data.userId}` : Avatar}
+        src={data.photo ? `${links.cdn}/photo/${data.userId}` : Avatar}
         alt={data.name + " cover photo"}
         className="user-photo"
       />
@@ -417,11 +414,11 @@ const SearchItem = props => {
           if (data.chatId) {
             open(data.chatId);
           } else {
-            fetch(`${Links.api}/startChat`, {
+            fetch(`${links.api}/startChat`, {
               method: "POST",
               mode: "cors",
               credentials: "same-origin",
-              headers: Headers,
+              headers,
               body: `first=${user}&second=${data.userId}`
             })
               .then(response => response.json())
