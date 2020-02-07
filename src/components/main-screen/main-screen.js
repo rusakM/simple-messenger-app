@@ -78,32 +78,35 @@ class App extends Component {
           this.setState({
             chats: Store.getSortedChatArray(),
             appData: Store,
-            appTimestamp: `${timeNow.getTime()}`,
+            appTimestamp: `${timeNow.getTime()}`
           });
         }
       });
   }
 
   checkingUpdates() {
-    fetch(`${links.api}/checkUpdates/?userId=${this.props.user}&timestamp=${this.state.appTimestamp}`, {
-      headers,
-      mode: 'cors',
-      credentials: 'same-origin',
-      method: 'get',
-    })
-    .then(response => response.json())
-    .then(json => {
-      if(json.updates > 0) {
-        this.fetchUpdates();
+    fetch(
+      `${links.api}/checkUpdates/?userId=${this.props.user}&timestamp=${this.state.appTimestamp}`,
+      {
+        headers: Headers,
+        mode: "cors",
+        credentials: "same-origin",
+        method: "get"
       }
-    });
+    )
+      .then(response => response.json())
+      .then(json => {
+        if (json.updates > 0) {
+          this.fetchUpdates();
+        }
+      });
   }
 
   fetchUpdates() {
     fetch(`${links.api}/getChats`, {
-      method: 'post',
-      mode: 'cors',
-      credentials:'same-origin',
+      method: "post",
+      mode: "cors",
+      credentials: "same-origin",
       headers,
       body: `user=${this.props.user}`
     })
@@ -117,7 +120,7 @@ class App extends Component {
           this.setState({
             chats: Store.getSortedChatArray(),
             appData: Store,
-            appTimestamp: `${timeNow.getTime()}`,
+            appTimestamp: `${timeNow.getTime()}`
           });
         }
       });
@@ -259,30 +262,29 @@ class App extends Component {
         />
 
         <ul className="chats-container">
-          {
-            this.state.chats.map((i, nr) => {
-              let item = this.state.appData[i];
-              const { appData } = this.state;
-              return (
-                <ChatListItem 
-                  open={this.openChat}
-                  chatid={i}
-                  img={item.userPhoto}
-                  name={item.name}
-                  content={appData.getLastMessageContent(i)}
-                  lastmessagesender={appData.getLastMessageSenderId(i)}
-                  readstatus={appData.getReadStatus(i)}
-                  key={nr}
-                  userid={item.userId}
-                  activitystatus={
-                    item.userIsActive === 1 
+          {this.state.chats.map((i, nr) => {
+            let item = this.state.appData[i];
+            const { appData } = this.state;
+            return (
+              <ChatListItem
+                open={this.openChat}
+                chatid={i}
+                img={item.userPhoto}
+                name={item.name}
+                content={appData.getLastMessageContent(i)}
+                lastmessagesender={appData.getLastMessageSenderId(i)}
+                readstatus={appData.getReadStatus(i)}
+                messagetype={appData.getLastMessageType(i)}
+                key={nr}
+                userid={item.userId}
+                activitystatus={
+                  item.userIsActive === 1
                     ? "chat-img chat-img-active"
                     : "chat-img"
-                  }
-                />
-              )
-            })
-          }
+                }
+              />
+            );
+          })}
         </ul>
       </div>
     );
