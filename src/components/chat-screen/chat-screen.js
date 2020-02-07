@@ -11,7 +11,7 @@ import {
 import { faCheckCircle as farCheckCircle } from "@fortawesome/free-regular-svg-icons";
 import "./chat-screen.css";
 import store from "./../../middlewares/store";
-import { links, headers} from "./../../middlewares/config";
+import { links, headers } from "./../../middlewares/config";
 import Background from "./../../assets/grey_bg.png";
 
 let Store = new store();
@@ -43,7 +43,6 @@ class Chat extends Component {
     this.textareaRef = createRef();
     this.messagesContainerRef = createRef();
     this.photoRef = createRef();
-    this.lastMsgRef = createRef();
     this.closeChat = this.closeChat.bind(this);
     this.sendMessage = this.sendMessage.bind(this);
     this.messageInputHandler = this.messageInputHandler.bind(this);
@@ -168,7 +167,6 @@ class Chat extends Component {
     this.setState({
       messageInput: event.target.value
     });
-    console.log(this.lastMsgRef.current);
   }
 
   switchScrollWithMount() {
@@ -195,8 +193,12 @@ class Chat extends Component {
     if (!this.state.scrollWithMount && !forceScroll) {
       return;
     }
-    if (this.lastMsgRef.current !== null) {
-      this.lastMsgRef.current.scrollIntoView();
+    let { current } = this.messagesContainerRef;
+    if (current) {
+      if (current.scrollHeight > current.offsetHeight) {
+        this.messagesContainerRef.current.scrollTop =
+          current.scrollHeight - current.offsetHeight;
+      }
     }
   }
 
@@ -213,7 +215,7 @@ class Chat extends Component {
   componentDidMount() {
     setTimeout(() => {
       this.scrollToEnd(true);
-    }, 2000);
+    }, 1500);
   }
 
   photoBtn() {
