@@ -65,10 +65,12 @@
 
 .settings-screen-popup {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  left: 5%;
+  top: 45%;
+  transform: translateX(-50%);
+  left: 50%;
+  align-self: center;
   width: 90%;
+  max-width: 400px;
   border: 3px solid #04bf68;
   border-radius: 15px;
   background-color: #f2f2f2;
@@ -82,7 +84,7 @@
 .show-settings-screen-popup {
   animation-duration: 1s;
   animation-name: show-popup;
-  left: 5%;
+  left: 50%;
 }
 
 .hide-settings-screen-popup {
@@ -96,7 +98,7 @@
     left: -100vw;
   }
   to {
-    left: 5%;
+    left: 50%;
   }
 }
 

@@ -11,7 +11,8 @@ import {
   faUnlockAlt,
   faDoorOpen,
   faClipboardCheck,
-  faArrowRight
+  faArrowRight,
+  faCheckCircle
 } from "@fortawesome/free-solid-svg-icons";
 import "./settings-screen.css";
 //import store from "./../../middlewares/store";
@@ -35,6 +36,7 @@ class SettingsScreen extends Component {
       changePasswordClasses: "hidden",
       newPasswordClasses: "hidden",
       disableAccountClasses: "hidden",
+      passwordChangedPopupClasses: "hidden",
       passwordField: "",
       newPasswordField: "",
       isPasswordCorrect: true,
@@ -66,6 +68,7 @@ class SettingsScreen extends Component {
       .then(response => response.json())
       .then(userData => {
         this.setState({
+          photoDeleteBtnClasses: userData.photo === 1 ? "" : "hidden",
           userData
         });
       });
@@ -100,9 +103,14 @@ class SettingsScreen extends Component {
     this.fileRef.current.click();
   };
 
-  resetPhoto = () => {
+  resetPhoto = (photoLink = false) => {
+    const link = `${links.cdn}/photo/${this.props.user}`;
+    if (photoLink === false) {
+      this.photoRef.current.src = link;
+    } else {
+      this.photoRef.current.src = photoLink;
+    }
     this.fileRef.current.value = "";
-    this.photoRef.current.src = `${links.cdn}/photo/${this.props.user}`;
     this.setState({
       isChangingPhoto: false,
       isDeletingPhoto: false,
@@ -144,7 +152,14 @@ class SettingsScreen extends Component {
         },
         body: form
       }).then(() => {
-        this.resetPhoto();
+        const photo = this.fileRef.current.files[0];
+        this.resetPhoto(URL.createObjectURL(photo));
+        let { userData } = this.state;
+        userData.photo = 1;
+        this.setState({
+          userData,
+          photoDeleteBtnClasses: ""
+        });
       });
     } else if (this.state.isDeletingPhoto) {
       fetch(`${links.cdn}/deletePhoto/?userId=${this.props.user}`, {
@@ -153,7 +168,13 @@ class SettingsScreen extends Component {
         credentials: "same-origin",
         headers
       }).then(() => {
-        this.resetPhoto();
+        this.resetPhoto(Avatar);
+        const { userData } = this.state;
+        userData.photo = 0;
+        this.setState({
+          userData,
+          photoDeleteBtnClasses: "hidden"
+        });
       });
     }
   };
@@ -224,13 +245,36 @@ class SettingsScreen extends Component {
       });
     } else {
       let { userData, newPasswordField } = this.state;
-      userData.password = md5(newPasswordField);
-      this.setState({
-        userData,
-        newPasswordField: ""
+      const newPass = md5(newPasswordField);
+      fetch(`${links.api}/changePassword`, {
+        method: "post",
+        mode: "cors",
+        credentials: "same-origin",
+        headers,
+        body: `userId=${this.props.user}&password=${newPass}`
+      }).then(() => {
+        userData.password = md5(newPasswordField);
+        this.setState({
+          userData,
+          newPasswordField: ""
+        });
+        this.closeNewPasswordPopup();
+        this.openPasswordChangedPopup();
       });
-      this.closeNewPasswordPopup();
     }
+  };
+
+  openPasswordChangedPopup = () => {
+    this.setState({
+      passwordChangedPopupClasses:
+        "settings-screen-popup show-settings-screen-popup"
+    });
+  };
+
+  closePasswordChangedPopup = () => {
+    this.setState({
+      passwordChangedPopupClasses: "hidden"
+    });
   };
 
   disableAccountPopupOpen = () => {
@@ -241,7 +285,14 @@ class SettingsScreen extends Component {
   };
 
   disableAccountConfirm = () => {
-    console.log("account disabled");
+    fetch(`${links.api}/disableAccount/?userId=${this.props.user}`, {
+      methos: "post",
+      mode: "cors",
+      credentials: "same-origin",
+      headers
+    }).then(() => {
+      this.props.logout();
+    });
   };
 
   disableAccountPopupClose = () => {
@@ -282,7 +333,7 @@ class SettingsScreen extends Component {
               </p>
               <p
                 className={this.state.photoResetBtnClasses}
-                onClick={this.resetPhoto}
+                onClick={() => this.resetPhoto(false)}
               >
                 <FontAwesomeIcon icon={faTimes} />
               </p>
@@ -292,7 +343,10 @@ class SettingsScreen extends Component {
               >
                 <FontAwesomeIcon icon={faTrash} />
               </p>
-              <p className={this.state.photoSaveBtnClasses}>
+              <p
+                className={this.state.photoSaveBtnClasses}
+                onClick={this.savePhoto}
+              >
                 <FontAwesomeIcon icon={faSave} />
               </p>
             </div>
@@ -334,6 +388,10 @@ class SettingsScreen extends Component {
           close={this.closeNewPasswordPopup}
           save={this.saveNewPassword}
           iscorrect={this.state.isPasswordTooShort}
+        />
+        <PasswordChanged
+          classes={this.state.passwordChangedPopupClasses}
+          close={this.closePasswordChangedPopup}
         />
         <DisableAccount
           classes={this.state.disableAccountClasses}
@@ -411,6 +469,24 @@ const NewPassword = props => {
       </p>
       <p onClick={close} className="popup-close-btn">
         <FontAwesomeIcon icon={faTimes} />
+      </p>
+    </aside>
+  );
+};
+
+const PasswordChanged = props => {
+  const { classes, close } = props;
+
+  return (
+    <aside className={classes}>
+      <div className="popup-content">
+        <p className="popup-icon">
+          <FontAwesomeIcon icon={faCheckCircle} />
+        </p>
+        <p className="popup-header">Password changed!</p>
+      </div>
+      <p onClick={close} className="popup-ok-btn">
+        Confirm
       </p>
     </aside>
   );

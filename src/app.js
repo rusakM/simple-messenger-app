@@ -45,10 +45,6 @@ class App extends Component {
   }
 
   logOut() {
-    this.setState({
-      loggedin: false,
-      user: false
-    });
     this.cookiesRemover();
     fetch(`${links.api}/logout`, {
       method: "POST",
@@ -56,8 +52,13 @@ class App extends Component {
       credentials: "same-origin",
       headers,
       body: `user=${this.state.user}`
-    }).then(response => true);
-    this.props.history.push("/login");
+    }).then(() => {
+      this.setState({
+        loggedin: false,
+        user: false
+      });
+      this.props.history.push("/login");
+    });
   }
 
   render() {
@@ -97,6 +98,7 @@ class App extends Component {
             <SettingsScreen
               user={this.state.user}
               history={this.props.history}
+              logout={this.logOut}
             />
           )}
         />
