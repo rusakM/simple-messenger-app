@@ -244,6 +244,13 @@ body {
   display: block;
 }
 
+.btn-get-previous-messages {
+  color: #04bf68;
+  text-align: center;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .hidden {
   display: none !important;
 }

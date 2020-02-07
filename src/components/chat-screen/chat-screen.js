@@ -23,6 +23,7 @@ class Chat extends Component {
       chatId: parseInt(this.props.history.location.pathname.slice(6)),
       messageInput: "",
       isSendingPhoto: false,
+      firstMessageId: 0,
       chatData: {},
       messagesList: [],
       scrollWithMount: true,
@@ -32,6 +33,7 @@ class Chat extends Component {
       uploadingProgress: 0,
       timeNow: new Date().getTime(),
       bubbleClasses: "chat-bubble hidden",
+      btnGetNewMessagesClasses: "btn-get-previous-messages",
       notification: {
         chatId: parseInt(this.props.history.location.pathname.slice(6)),
         userId: this.props.user,
@@ -61,6 +63,7 @@ class Chat extends Component {
       7000
     );
     this.getNotifications = this.getNotifications.bind(this);
+    this.getPreviousMessages = this.getPreviousMessages.bind(this);
   }
 
   componentWillMount() {
@@ -80,6 +83,20 @@ class Chat extends Component {
             Store.insert(json[a]);
           }
         }
+      })
+      .then(() => {
+        fetch(`${links.api}/getFirstMessageId/?chatId=${this.state.chatId}`, {
+          method: "get",
+          mode: "cors",
+          credentials: "same-origin",
+          headers
+        })
+          .then(response => response.json())
+          .then(json => {
+            this.setState({
+              firstMessageId: json.id
+            });
+          });
       })
       .then(() => {
         fetch(`${links.api}/getMessages`, reqData)
@@ -376,6 +393,35 @@ class Chat extends Component {
     });
   }
 
+  getPreviousMessages() {
+    const last = this.state.messagesList[0];
+    fetch(`${links.api}/getMessages`, {
+      method: "post",
+      mode: "cors",
+      credentials: "same-origin",
+      headers,
+      body: `limit=${last}&chat=${this.state.chatId}&user=${this.props.user}`
+    })
+      .then(response => response.json())
+      .then(json => {
+        for (let a = 0; a < json.length; a++) {
+          Store.insert(json[a]);
+        }
+        let classes = "hidden";
+        if (
+          Store.getSortedMessagesArray(this.state.chatId)[0] >
+          this.state.firstMessageId
+        ) {
+          classes = "btn-get-previous-messages";
+        }
+        this.setState({
+          chatData: Store[this.state.chatId],
+          messagesList: Store.getSortedMessagesArray(this.state.chatId),
+          btnGetNewMessagesClasses: classes
+        });
+      });
+  }
+
   render() {
     let { chatId } = this.state;
     return (
@@ -397,6 +443,10 @@ class Chat extends Component {
             onScroll={this.switchScrollWithMount}
             ref={this.messagesContainerRef}
           >
+            <GetNewMessagesBtn
+              classes={this.state.btnGetNewMessagesClasses}
+              get={this.getPreviousMessages}
+            />
             {this.state.messagesList.map((item, nr) => {
               let msg = Store[chatId].messages[item];
               let classesBox = "msg-box";
@@ -539,6 +589,14 @@ const ScrollDownBtn = props => {
   return (
     <p className={props.classes} onClick={props.scroll}>
       <FontAwesomeIcon icon={faChevronDown} />
+    </p>
+  );
+};
+
+const GetNewMessagesBtn = props => {
+  return (
+    <p className={props.classes} onClick={props.get}>
+      Get previous messages..
     </p>
   );
 };
