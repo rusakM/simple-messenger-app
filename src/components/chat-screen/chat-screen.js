@@ -93,8 +93,22 @@ class Chat extends Component {
         })
           .then(response => response.json())
           .then(json => {
+            let classes = "btn-get-previous-messages";
+            try {
+              if (
+                parseInt(Store.getSortedMessagesArray(this.state.chatId)[0]) ===
+                json.id
+              ) {
+                classes = "hidden";
+              } else {
+                throw classes;
+              }
+            } catch (e) {
+              classes = e;
+            }
             this.setState({
-              firstMessageId: json.id
+              firstMessageId: json.id,
+              btnGetNewMessagesClasses: classes
             });
           });
       })
