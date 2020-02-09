@@ -6,7 +6,9 @@ import {
   faTimesCircle,
   faChevronDown,
   faCheckCircle,
-  faTimes
+  faTimes,
+  faChevronLeft,
+  faChevronRight
 } from "@fortawesome/free-solid-svg-icons";
 import { faCheckCircle as farCheckCircle } from "@fortawesome/free-regular-svg-icons";
 import "./chat-screen.css";
@@ -34,6 +36,9 @@ class Chat extends Component {
       timeNow: new Date().getTime(),
       bubbleClasses: "chat-bubble hidden",
       btnGetNewMessagesClasses: "btn-get-previous-messages",
+      galleryClasses: "hidden",
+      photos: [],
+      activePhoto: 0,
       notification: {
         chatId: parseInt(this.props.history.location.pathname.slice(6)),
         userId: this.props.user,
@@ -121,7 +126,8 @@ class Chat extends Component {
             }
             this.setState({
               chatData: Store[this.state.chatId],
-              messagesList: Store.getSortedMessagesArray(this.state.chatId)
+              messagesList: Store.getSortedMessagesArray(this.state.chatId),
+              photos: Store.getArrayPhotos(this.state.chatId)
             });
           });
       });
@@ -184,7 +190,8 @@ class Chat extends Component {
           messagesList: Store.getSortedMessagesArray(this.state.chatId),
           messageInput: "",
           isSendingPhoto: false,
-          uploadingProgress: 0
+          uploadingProgress: 0,
+          photos: Store.getArrayPhotos(this.state.chatId)
         });
         this.closePhotoPreview();
         console.log(json);
@@ -383,7 +390,8 @@ class Chat extends Component {
           }
           this.setState({
             chatData: Store[this.state.chatId],
-            messagesList: Store.getSortedMessagesArray(this.state.chatId)
+            messagesList: Store.getSortedMessagesArray(this.state.chatId),
+            photos: Store.getArrayPhotos(this.state.chatId)
           });
           if (isNeedToSetViewed) {
             fetch(
@@ -436,6 +444,51 @@ class Chat extends Component {
       });
   }
 
+  openGallery = photoId => {
+    const { photos } = this.state;
+    const index = photos.indexOf(photoId);
+    if (index >= 0) {
+      this.setState({
+        galleryClasses: "gallery",
+        activePhoto: index
+      });
+    }
+  };
+
+  galleryClose = () => {
+    this.setState({
+      galleryClasses: "hidden"
+    });
+  };
+
+  galleryPrev = () => {
+    if (this.state.photos.length > 1) {
+      if (this.state.activePhoto < 1) {
+        this.setState({
+          activePhoto: this.state.photos.length - 1
+        });
+      } else {
+        this.setState({
+          activePhoto: this.state.activePhoto - 1
+        });
+      }
+    }
+  };
+
+  galleryNext = () => {
+    if (this.state.photos.length > 1) {
+      if (this.state.activePhoto === this.state.photos.length - 1) {
+        this.setState({
+          activePhoto: 0
+        });
+      } else {
+        this.setState({
+          activePhoto: this.state.activePhoto + 1
+        });
+      }
+    }
+  };
+
   render() {
     let { chatId } = this.state;
     return (
@@ -484,6 +537,7 @@ class Chat extends Component {
                   classescontainer={classesContainer}
                   messageid={item}
                   isread={msg.isRead}
+                  gallery={this.openGallery}
                 />
               );
             })}
@@ -528,6 +582,13 @@ class Chat extends Component {
           userid={this.state.notification.userId}
           close={this.closeNotification}
         />
+        <Gallery
+          classes={this.state.galleryClasses}
+          close={this.galleryClose}
+          next={this.galleryNext}
+          prev={this.galleryPrev}
+          nr={this.state.photos[this.state.activePhoto]}
+        />
       </div>
     );
   }
@@ -563,6 +624,10 @@ const Message = props => {
         src={`${links.cdn}/message/${props.messageid}`}
         className="message-img"
         alt={`messageid: ${props.messageid}`}
+        onClick={event => {
+          event.stopPropagation();
+          props.gallery(parseInt(props.messageid));
+        }}
       />
     );
   }
@@ -675,6 +740,31 @@ const ChatBubble = props => {
           <FontAwesomeIcon icon={faTimes} />
         </p>
         <img src={imgLocation} alt="Notification" className="notify-img" />
+      </div>
+    </aside>
+  );
+};
+
+const Gallery = props => {
+  const { nr, classes, close, prev, next } = props;
+
+  return (
+    <aside className={classes}>
+      <div className="gallery-container">
+        <p className="gallery-btn gallery-close-btn" onClick={close}>
+          <FontAwesomeIcon icon={faTimes} />
+        </p>
+        <p className="gallery-btn gallery-prev-btn" onClick={prev}>
+          <FontAwesomeIcon icon={faChevronLeft} />
+        </p>
+        <p className="gallery-btn gallery-next-btn" onClick={next}>
+          <FontAwesomeIcon icon={faChevronRight} />
+        </p>
+        <img
+          src={`${links.cdn}/message/${nr}`}
+          alt={nr}
+          className="gallery-photo"
+        />
       </div>
     </aside>
   );
