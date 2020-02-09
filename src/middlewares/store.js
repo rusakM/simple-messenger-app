@@ -99,11 +99,10 @@ class Store {
   getLastReadMessage(chatId) {
     let keys = this.getSortedMessagesArray(chatId);
     let lastRead = 0;
-    for(let a = 0; a < keys.length; a++) {
-      if(this[chatId].messages[keys[a]].isRead === 1) {
+    for (let a = 0; a < keys.length; a++) {
+      if (this[chatId].messages[keys[a]].isRead === 1) {
         lastRead = keys[a];
-      }
-      else {
+      } else {
         break;
       }
     }
@@ -113,12 +112,23 @@ class Store {
   changeReadMessagesStatus(chatId, lastMessage = 0) {
     let keys = this.getSortedMessagesArray(chatId);
     let lastIndex = keys.indexOf(lastMessage);
-    if(lastIndex === -1) {
+    if (lastIndex === -1) {
       lastIndex = keys.length - 1;
     }
-    for(let a = 0; a <= lastIndex; a++) {
+    for (let a = 0; a <= lastIndex; a++) {
       this[chatId].messages[keys[a]].isRead = 1;
     }
+  }
+
+  getArrayPhotos(chatId) {
+    let keys = this.getSortedMessagesArray(chatId);
+    let photos = [];
+    keys.map(item => {
+      if (this[chatId].messages[item].messageType === 1) {
+        photos.push(parseInt(item));
+      }
+    });
+    return photos;
   }
 }
 
