@@ -751,16 +751,16 @@ const Gallery = props => {
 
   return (
     <aside className={classes}>
+      <p className="gallery-btn gallery-close-btn" onClick={close}>
+        <FontAwesomeIcon icon={faTimes} />
+      </p>
+      <p className="gallery-btn gallery-prev-btn" onClick={prev}>
+        <FontAwesomeIcon icon={faChevronLeft} />
+      </p>
+      <p className="gallery-btn gallery-next-btn" onClick={next}>
+        <FontAwesomeIcon icon={faChevronRight} />
+      </p>
       <div className="gallery-container">
-        <p className="gallery-btn gallery-close-btn" onClick={close}>
-          <FontAwesomeIcon icon={faTimes} />
-        </p>
-        <p className="gallery-btn gallery-prev-btn" onClick={prev}>
-          <FontAwesomeIcon icon={faChevronLeft} />
-        </p>
-        <p className="gallery-btn gallery-next-btn" onClick={next}>
-          <FontAwesomeIcon icon={faChevronRight} />
-        </p>
         <img
           src={`${links.cdn}/message/${nr}`}
           alt={nr}
