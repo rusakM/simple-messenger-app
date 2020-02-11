@@ -13,6 +13,7 @@ import {
 import { faCheckCircle as farCheckCircle } from "@fortawesome/free-regular-svg-icons";
 import "./chat-screen.css";
 import store from "./../../middlewares/store";
+import converter from "./../../middlewares/converter";
 import { links, headers } from "./../../middlewares/config";
 import Background from "./../../assets/grey_bg.png";
 
@@ -163,7 +164,7 @@ class Chat extends Component {
 
     formData.append("senderId", this.props.user);
     formData.append("chatId", this.state.chatId);
-    formData.append("content", this.state.messageInput);
+    formData.append("content", converter.codeMessage(this.state.messageInput));
     formData.append("messageType", messageType);
 
     if (messageType) {
@@ -613,8 +614,8 @@ const Message = props => {
   let img = "";
   let date = new Date();
   let timeNow = new Date();
-  let dateString = date.toLocaleTimeString();
   date.setTime(props.timestamp);
+  let dateString = date.toLocaleTimeString();
   if (timeNow.toLocaleDateString() !== date.toLocaleDateString()) {
     dateString = date.toLocaleDateString();
   }

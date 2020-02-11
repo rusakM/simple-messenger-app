@@ -1,3 +1,5 @@
+import converter from "./converter";
+
 class Store {
   insert(body) {
     if (!this[body.chatId])
@@ -11,7 +13,7 @@ class Store {
       };
     this[body.chatId].lastMessageId = body.messageId;
     this[body.chatId].messages[body.messageId] = {
-      messageContent: body.content,
+      messageContent: converter.decodeMessage(body.content),
       messageType: body.messageType,
       timestamp: body.msgTimestamp,
       senderId: body.senderId,
@@ -127,6 +129,7 @@ class Store {
       if (this[chatId].messages[item].messageType === 1) {
         photos.push(parseInt(item));
       }
+      return item;
     });
     return photos;
   }
