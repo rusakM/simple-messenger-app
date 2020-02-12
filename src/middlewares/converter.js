@@ -25,6 +25,17 @@ class Converter {
 
     return message;
   };
+
+  trimInputs = txt => {
+    txt = txt.replace(`'`, "");
+    txt = txt.replace('"', "");
+    txt = txt.replace("\\", "");
+    txt = txt.replace("`", "");
+    txt = txt.replace("&", "");
+    txt = txt.replace("|", "");
+
+    return txt;
+  };
 }
 
 export default new Converter();

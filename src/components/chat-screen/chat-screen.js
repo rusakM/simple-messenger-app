@@ -61,18 +61,18 @@ class Chat extends Component {
     this.closeFileAlert = this.closeFileAlert.bind(this);
     this.closePhotoPreview = this.closePhotoPreview.bind(this);
     this.checkingUpdates = this.checkingUpdates.bind(this);
-    this.checkingUpdatesInterval = setInterval(this.checkingUpdates, 3500);
     this.closeNotification = this.closeNotification.bind(this);
     this.checkingNotifications = this.checkingNotifications.bind(this);
-    this.checkingNotificationsInterval = setInterval(
-      this.checkingNotifications,
-      7000
-    );
     this.getNotifications = this.getNotifications.bind(this);
     this.getPreviousMessages = this.getPreviousMessages.bind(this);
+    this.openNotification = this.openNotification.bind(this);
   }
 
   componentWillMount() {
+    if (isNaN(this.state.chatId)) {
+      return;
+    }
+
     const reqData = {
       method: "POST",
       mode: "cors",
@@ -88,6 +88,11 @@ class Chat extends Component {
           for (let a = 0; a < json.length; a++) {
             Store.insert(json[a]);
           }
+          if (!Store[this.state.chatId]) {
+            throw this.closeChat();
+          }
+        } else {
+          throw this.closeChat();
         }
       })
       .then(() => {
@@ -130,6 +135,14 @@ class Chat extends Component {
               messagesList: Store.getSortedMessagesArray(this.state.chatId),
               photos: Store.getArrayPhotos(this.state.chatId)
             });
+            this.checkingUpdatesInterval = setInterval(
+              this.checkingUpdates,
+              3500
+            );
+            this.checkingNotificationsInterval = setInterval(
+              this.checkingNotifications,
+              7000
+            );
           });
       });
 
@@ -141,7 +154,7 @@ class Chat extends Component {
         credentials: "same-origin",
         headers
       }
-    );
+    ).catch(err => this.closeChat());
   }
 
   componentWillUnmount() {
@@ -355,7 +368,7 @@ class Chat extends Component {
     )
       .then(response => response.json())
       .then(json => {
-        if (json.chatId) {
+        if (isFinite(json.chatId) && json.chatId !== this.state.chatId) {
           this.setState({
             notification: json,
             timeNow: new Date().getTime(),
@@ -414,6 +427,10 @@ class Chat extends Component {
     this.setState({
       bubbleClasses: "hidden chat-bubble"
     });
+  }
+
+  openNotification(chatId) {
+    this.props.history.push(`/chat/${chatId}`);
   }
 
   getPreviousMessages() {
@@ -582,6 +599,7 @@ class Chat extends Component {
           name={this.state.notification.name}
           userid={this.state.notification.userId}
           close={this.closeNotification}
+          open={this.openNotification}
         />
         <Gallery
           classes={this.state.galleryClasses}
@@ -718,18 +736,16 @@ const PhotoPreview = props => {
 };
 
 const ChatBubble = props => {
-  const { classes, content, chatid, name, userid, close } = props;
+  const { classes, content, chatid, name, userid, close, open } = props;
   const imgLocation = `${links.cdn}/photo/${userid}`;
-  const chatLocation = `${links.origin}/chat/${chatid}`;
-  const linkRef = createRef();
-
-  function open() {
-    linkRef.current.click();
-  }
 
   return (
-    <aside className={classes} onClick={open}>
-      <a href={chatLocation} ref={linkRef} hidden></a>
+    <aside
+      className={classes}
+      onClick={() => {
+        open(chatid);
+      }}
+    >
       <div className="notify-content">
         <p>
           <b>{name}</b>

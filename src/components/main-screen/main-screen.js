@@ -14,6 +14,7 @@ import { faCheckCircle as farCheckCircle } from "@fortawesome/free-regular-svg-i
 import Avatar from "./../../assets/avatar.png";
 import store from "./../../middlewares/store";
 import { links, headers } from "./../../middlewares/config";
+import converter from "./../../middlewares/converter";
 
 let Store = new store();
 
@@ -47,7 +48,6 @@ class App extends Component {
     this.checkingUpdates = this.checkingUpdates.bind(this);
     this.fetchUpdates = this.fetchUpdates.bind(this);
     this.logout = this.logout.bind(this);
-    this.checkingUpdatesInterval = setInterval(this.checkingUpdates, 5000);
   }
 
   componentWillMount() {
@@ -65,7 +65,8 @@ class App extends Component {
 
     fetch(`${links.api}/getUserData`, reqData)
       .then(response => response.json())
-      .then(json => this.setState({ userData: json }));
+      .then(json => this.setState({ userData: json }))
+      .catch(err => this.props.history.push("/login"));
 
     fetch(`${links.api}/getChats`, reqData)
       .then(response => response.json())
@@ -82,6 +83,10 @@ class App extends Component {
           });
         }
       });
+  }
+
+  componentDidMount() {
+    this.checkingUpdatesInterval = setInterval(this.checkingUpdates, 5000);
   }
 
   checkingUpdates() {
@@ -140,22 +145,23 @@ class App extends Component {
   }
 
   searchHandler(event) {
-    if (event.target.value !== "") {
+    let val = converter.trimInputs(event.target.value);
+    if (val !== "") {
       this.setState({
         searchScreen: {
           enabled: true,
           classes: "search-items-container search-items-container-show"
         },
-        searchBar: event.target.value
+        searchBar: val
       });
 
-      if (event.target.value.length > 2) {
+      if (val.length > 2) {
         fetch(`${links.api}/search`, {
           method: "POST",
           mode: "cors",
           credentials: "same-origin",
           headers,
-          body: `user=${this.props.user}&query=${event.target.value}`
+          body: `user=${this.props.user}&query=${val}`
         })
           .then(response => response.json())
           .then(json => {
